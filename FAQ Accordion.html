@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FAQ Accordion</title>
+    <style>
+        body{
+    font-family: Arial;
+    background: #f4f6f9;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.faq-container{
+    width:90%;
+    max-width:600px;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.faq{
+    border-bottom:1px solid #ddd;
+}
+
+.question{
+    display:flex;
+    justify-content:space-between;
+    padding:15px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.question:hover{
+    background:#f1f1f1;
+}
+
+.icon{
+    font-size:20px;
+}
+
+.answer{
+    max-height:0;
+    overflow:hidden;
+    padding:0 15px;
+    transition:0.4s ease;
+}
+
+.faq.active .answer{
+    max-height:100px;
+    padding:15px;
+}
+
+.faq.active .icon{
+    content:"-";
+}
+
+@media(max-width:600px){
+    .faq-container{
+        width:95%;
+    }
+}
+    </style>
+</head>
+<body>
+
+<div class="faq-container">
+
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="faq">
+        <div class="question">
+            <span>What is HTML?</span>
+            <span class="icon">+</span>
+        </div>
+        <div class="answer">
+            HTML is used to structure content on the web.
+        </div>
+    </div>
+
+    <div class="faq">
+        <div class="question">
+            <span>What is CSS?</span>
+            <span class="icon">+</span>
+        </div>
+        <div class="answer">
+            CSS is used to style the layout of webpages.
+        </div>
+    </div>
+
+    <div class="faq">
+        <div class="question">
+            <span>What is JavaScript?</span>
+            <span class="icon">+</span>
+        </div>
+        <div class="answer">
+            JavaScript is used to make webpages interactive.
+        </div>
+    </div>
+
+    <div class="faq">
+        <div class="question">
+            <span>What is DOM?</span>
+            <span class="icon">+</span>
+        </div>
+        <div class="answer">
+            DOM allows JavaScript to access and manipulate HTML elements.
+        </div>
+    </div>
+
+    <div class="faq">
+        <div class="question">
+            <span>What is Flexbox?</span>
+            <span class="icon">+</span>
+        </div>
+        <div class="answer">
+            Flexbox is used for responsive layout design.
+        </div>
+    </div>
+
+    <div class="faq">
+        <div class="question">
+            <span>What is Responsive Design?</span>
+            <span class="icon">+</span>
+        </div>
+        <div class="answer">
+            It ensures the website looks good on all devices.
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let faqs = document.querySelectorAll(".faq");
+
+faqs.forEach(function(faq){
+
+    faq.querySelector(".question").addEventListener("click", function(){
+
+        if(faq.classList.contains("active")){
+            faq.classList.remove("active");
+            faq.querySelector(".icon").textContent = "+";
+        }
+        else{
+
+            faqs.forEach(function(item){
+                item.classList.remove("active");
+                item.querySelector(".icon").textContent = "+";
+            });
+
+            faq.classList.add("active");
+            faq.querySelector(".icon").textContent = "-";
+        }
+
+    });
+
+});
+</script>
+</body>
+</html>

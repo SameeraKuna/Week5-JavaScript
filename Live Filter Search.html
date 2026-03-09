@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(120deg,#43cea2,#185a9d);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.container{
+    width:90%;
+    max-width:500px;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+h2{
+    text-align:center;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    margin-bottom:15px;
+}
+
+ul{
+    list-style:none;
+    padding:0;
+    max-height:350px;
+    overflow-y:auto;
+}
+
+li{
+    padding:10px;
+    margin-bottom:8px;
+    background:#f2f2f2;
+    border-radius:6px;
+    transition:0.3s;
+}
+
+li:hover{
+    background:#ddd;
+}
+
+mark{
+    background:yellow;
+    padding:2px;
+    border-radius:3px;
+}
+
+@media(max-width:500px){
+    li{
+        font-size:14px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Live Search Filter</h2>
+
+<input type="text" id="searchInput" placeholder="Type to search...">
+
+<ul id="itemList">
+
+<li>JavaScript</li>
+<li>HTML</li>
+<li>CSS</li>
+<li>React</li>
+<li>Angular</li>
+<li>Vue</li>
+<li>NodeJS</li>
+<li>Express</li>
+<li>MongoDB</li>
+<li>MySQL</li>
+<li>Python</li>
+<li>Java</li>
+<li>C++</li>
+<li>C#</li>
+<li>Ruby</li>
+<li>PHP</li>
+<li>Bootstrap</li>
+<li>Tailwind</li>
+<li>Git</li>
+<li>GitHub</li>
+<li>API</li>
+<li>JSON</li>
+<li>DOM</li>
+<li>Event Loop</li>
+<li>Promises</li>
+<li>Async Await</li>
+<li>Closure</li>
+<li>Scope</li>
+<li>Hoisting</li>
+<li>Functions</li>
+<li>Arrays</li>
+<li>Objects</li>
+<li>Strings</li>
+<li>Numbers</li>
+
+</ul>
+
+</div>
+
+<script>
+
+let input = document.getElementById("searchInput");
+let listItems = document.querySelectorAll("#itemList li");
+
+input.addEventListener("input", function(){
+
+    let searchText = input.value.toLowerCase();
+
+    listItems.forEach(function(item){
+
+        let originalText = item.textContent;
+        let lowerText = originalText.toLowerCase();
+
+        if(lowerText.includes(searchText)){
+
+            item.style.display = "block";
+
+            let startIndex = lowerText.indexOf(searchText);
+            let endIndex = startIndex + searchText.length;
+
+            let highlighted =
+                originalText.substring(0,startIndex) +
+                "<mark>" +
+                originalText.substring(startIndex,endIndex) +
+                "</mark>" +
+                originalText.substring(endIndex);
+
+            if(searchText !== ""){
+                item.innerHTML = highlighted;
+            }else{
+                item.textContent = originalText;
+            }
+
+        }else{
+            item.style.display = "none";
+        }
+
+    });
+
+});
+
+</script>
+
+</body>
+</html>

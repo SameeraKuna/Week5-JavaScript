@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Directory</title>
+
+<style>
+
+body{
+font-family:system-ui;
+background:#f7f7fb;
+padding:20px;
+}
+
+h1{text-align:center;}
+
+.table-wrap{
+background:#fff;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* ✅ Sticky + Centered Header */
+thead th{
+position:sticky;
+top:0;
+background:#fafafc;
+z-index:2;
+padding:12px;
+cursor:pointer;
+text-align:center;
+vertical-align:middle;
+}
+
+/* ✅ Center ALL Body Cells */
+tbody td{
+padding:10px;
+border-bottom:1px solid #eee;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+text-align:center;
+vertical-align:middle;
+}
+
+tbody tr:hover{
+background:#f4f7ff;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+table-layout:fixed;
+}
+
+/* ✅ Search Box */
+.search-box{
+margin:15px 0;
+text-align:center;
+}
+.search-box input{
+padding:8px 12px;
+width:250px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+/* ✅ Pagination */
+.pagination{
+text-align:center;
+margin:15px;
+}
+.pagination button{
+margin:2px;
+padding:6px 12px;
+border:none;
+background:#3b82f6;
+color:white;
+border-radius:5px;
+cursor:pointer;
+}
+.pagination button.active{
+background:#1f4ad8;
+}
+
+/* ✅ Tablet Scroll */
+@media(max-width:900px){
+.table-wrap{overflow-x:auto;}
+table{min-width:700px;}
+}
+
+/* ✅ Mobile Card View */
+@media(max-width:600px){
+
+thead{display:none;}
+
+table,tbody,tr,td{
+display:block;
+width:100%;
+}
+
+tr{
+background:#fff;
+margin-bottom:14px;
+padding:12px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+td{
+border:none;
+padding:8px;
+text-align:center;
+position:relative;
+}
+
+td::before{
+content:attr(data-label);
+position:absolute;
+left:10px;
+font-weight:bold;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Employee Directory</h1>
+
+<div class="search-box">
+<input type="text" id="searchInput" placeholder="Search employees...">
+</div>
+
+<div class="table-wrap">
+<table id="empTable">
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Department</th>
+<th>Salary</th>
+<th>Join Date</th>
+</tr>
+</thead>
+
+<tbody id="tableBody">
+
+<tr><td data-label="ID">101</td><td data-label="Name">Sameera Kuna</td><td data-label="Department">Engineering</td><td data-label="Salary">₹85,000</td><td data-label="Join Date">2024-02-10</td></tr>
+<tr><td data-label="ID">102</td><td data-label="Name">Arjun Mehta</td><td data-label="Department">Design</td><td data-label="Salary">₹65,000</td><td data-label="Join Date">2023-11-05</td></tr>
+<tr><td data-label="ID">103</td><td data-label="Name">Priya Singh</td><td data-label="Department">HR</td><td data-label="Salary">₹58,500</td><td data-label="Join Date">2022-08-19</td></tr>
+<tr><td data-label="ID">104</td><td data-label="Name">Vikram Rao</td><td data-label="Department">Engineering</td><td data-label="Salary">₹96,200</td><td data-label="Join Date">2021-04-02</td></tr>
+<tr><td data-label="ID">105</td><td data-label="Name">Anita Sharma</td><td data-label="Department">Marketing</td><td data-label="Salary">₹72,300</td><td data-label="Join Date">2020-12-15</td></tr>
+<tr><td data-label="ID">106</td><td data-label="Name">Rahul Jain</td><td data-label="Department">Sales</td><td data-label="Salary">₹49,900</td><td data-label="Join Date">2024-01-22</td></tr>
+<tr><td data-label="ID">107</td><td data-label="Name">Fatima Noor</td><td data-label="Department">Support</td><td data-label="Salary">₹44,000</td><td data-label="Join Date">2023-03-30</td></tr>
+<tr><td data-label="ID">108</td><td data-label="Name">Neha Gupta</td><td data-label="Department">Engineering</td><td data-label="Salary">₹88,100</td><td data-label="Join Date">2022-10-07</td></tr>
+<tr><td data-label="ID">109</td><td data-label="Name">Rohit Verma</td><td data-label="Department">Design</td><td data-label="Salary">₹61,750</td><td data-label="Join Date">2024-03-01</td></tr>
+<tr><td data-label="ID">110</td><td data-label="Name">Karan Patel</td><td data-label="Department">HR</td><td data-label="Salary">₹57,000</td><td data-label="Join Date">2021-07-14</td></tr>
+<tr><td data-label="ID">111</td><td data-label="Name">Sneha Iyer</td><td data-label="Department">Finance</td><td data-label="Salary">₹70,200</td><td data-label="Join Date">2023-09-12</td></tr>
+<tr><td data-label="ID">112</td><td data-label="Name">Amit Kulkarni</td><td data-label="Department">Engineering</td><td data-label="Salary">₹91,000</td><td data-label="Join Date">2022-05-18</td></tr>
+<tr><td data-label="ID">113</td><td data-label="Name">Pooja Nair</td><td data-label="Department">Support</td><td data-label="Salary">₹46,500</td><td data-label="Join Date">2024-01-10</td></tr>
+<tr><td data-label="ID">114</td><td data-label="Name">Ramesh Babu</td><td data-label="Department">Marketing</td><td data-label="Salary">₹69,800</td><td data-label="Join Date">2021-03-25</td></tr>
+<tr><td data-label="ID">115</td><td data-label="Name">Divya Menon</td><td data-label="Department">HR</td><td data-label="Salary">₹59,900</td><td data-label="Join Date">2020-11-08</td></tr>
+<tr><td data-label="ID">116</td><td data-label="Name">Siddharth Reddy</td><td data-label="Department">Engineering</td><td data-label="Salary">₹99,400</td><td data-label="Join Date">2023-06-14</td></tr>
+<tr><td data-label="ID">117</td><td data-label="Name">Lakshmi Prasad</td><td data-label="Department">Finance</td><td data-label="Salary">₹74,300</td><td data-label="Join Date">2022-09-02</td></tr>
+<tr><td data-label="ID">118</td><td data-label="Name">Nikhil Shah</td><td data-label="Department">Sales</td><td data-label="Salary">₹52,600</td><td data-label="Join Date">2021-08-29</td></tr>
+<tr><td data-label="ID">119</td><td data-label="Name">Meera Joshi</td><td data-label="Department">Design</td><td data-label="Salary">₹63,400</td><td data-label="Join Date">2024-02-02</td></tr>
+<tr><td data-label="ID">120</td><td data-label="Name">Aditya Shetty</td><td data-label="Department">Engineering</td><td data-label="Salary">₹87,900</td><td data-label="Join Date">2023-12-19</td></tr>
+
+</tbody>
+</table>
+</div>
+
+<div class="pagination" id="pagination"></div>
+
+<script>
+
+/* ✅ 10 Rows Per Page */
+const rowsPerPage=10;
+
+const tableBody=document.getElementById("tableBody");
+const searchInput=document.getElementById("searchInput");
+const pagination=document.getElementById("pagination");
+
+let rows=Array.from(tableBody.querySelectorAll("tr"));
+let filteredRows=[...rows];
+let currentPage=1;
+
+function displayRows(){
+tableBody.innerHTML="";
+let start=(currentPage-1)*rowsPerPage;
+let end=start+rowsPerPage;
+filteredRows.slice(start,end).forEach(row=>tableBody.appendChild(row));
+}
+
+function setupPagination(){
+pagination.innerHTML="";
+let pageCount=Math.ceil(filteredRows.length/rowsPerPage);
+
+for(let i=1;i<=pageCount;i++){
+let btn=document.createElement("button");
+btn.innerText=i;
+if(i===currentPage)btn.classList.add("active");
+
+btn.addEventListener("click",()=>{
+currentPage=i;
+displayRows();
+setupPagination();
+});
+
+pagination.appendChild(btn);
+}
+}
+
+searchInput.addEventListener("keyup",()=>{
+let val=searchInput.value.toLowerCase();
+filteredRows=rows.filter(row=>row.innerText.toLowerCase().includes(val));
+currentPage=1;
+displayRows();
+setupPagination();
+});
+
+displayRows();
+setupPagination();
+
+</script>
+
+</body>
+</html>
