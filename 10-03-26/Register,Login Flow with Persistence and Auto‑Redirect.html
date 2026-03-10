@@ -1,0 +1,261 @@
+<!-- Goal 
+
+Build a simple authentication flow with: 
+
+Register Page 
+User enters: name, email, password 
+User gets created and saved in localStorage 
+After register → user should be automatically logged in 
+
+Login Page 
+User enters: email, password 
+App checks if user exists in stored users list 
+If matches → log in 
+
+After Login Page (Home Page) 
+Should show a simple welcome message 
+Only accessible if logged in 
+Session Persistence 
+Once logged in, the user should stay logged in after refresh 
+This means reading the stored session from local storage or session storage and automatically keeping them logged in 
+
+Auto‑Redirect Rules 
+If user is already logged in → they should NOT see Login or Register Page 
+Visiting Login Page→ redirect to Home page 
+Visiting Register Page → redirect to Home page 
+If user is not logged in → they should NOT Home page 
+Visiting Home page→ redirect to Login Page 
+Storage: Use localStorage for web. 
+Additional you can use session storage for session persistance.  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Simple Auth Flow</title>
+
+<style>
+    :root {
+        --blue: #a7c7e7;
+        --pink: #f7c5cc;
+        --purple: #d9b8ff;
+        --green: #beecc4;
+        --yellow: #fff3b0;
+        --text: #333;
+    }
+
+    body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #fbe3ff, #e7f2ff);
+        display: flex;
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .card {
+        width: 90%;
+        max-width: 400px;
+        background: #fff;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+        from {opacity: 0; transform: scale(0.95);}
+        to {opacity: 1; transform: scale(1);}
+    }
+
+    h2 {
+        text-align: center;
+        color: var(--text);
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0 14px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #fff;
+        font-size: 17px;
+    }
+
+    .btn-blue { background: var(--blue); }
+    .btn-green { background: var(--green); }
+    .btn-pink { background: var(--pink); }
+
+    .switch {
+        margin-top: 14px;
+        text-align: center;
+        cursor: pointer;
+        color: var(--purple);
+        font-weight: bold;
+    }
+
+    .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- REGISTER PAGE -->
+<div id="registerPage" class="card hidden">
+    <h2>Create Account</h2>
+    <input type="text" id="regName" placeholder="Full Name" />
+    <input type="email" id="regEmail" placeholder="Email" />
+    <input type="password" id="regPass" placeholder="Password" />
+    <button class="btn-blue" onclick="registerUser()">Register</button>
+    <div class="switch" onclick="showLogin()">Already have an account? Login</div>
+</div>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="card hidden">
+    <h2>Login</h2>
+    <input type="email" id="logEmail" placeholder="Email" />
+    <input type="password" id="logPass" placeholder="Password" />
+    <button class="btn-green" onclick="loginUser()">Login</button>
+    <div class="switch" onclick="showRegister()">Create a new account</div>
+</div>
+
+<!-- HOME PAGE -->
+<div id="homePage" class="card hidden">
+    <h2 id="welcomeText">Welcome!</h2>
+    <button class="btn-pink" onclick="logoutUser()">Logout</button>
+</div>
+
+<script>
+/* -------------------------
+   HELPER FUNCTIONS
+--------------------------*/
+
+// Switch visible page
+function showPage(page) {
+    document.querySelectorAll(".card").forEach(c => c.classList.add("hidden"));
+    document.getElementById(page).classList.remove("hidden");
+}
+
+// Redirect logic on load
+window.onload = function () {
+    const sessionUser = sessionStorage.getItem("activeUser");
+    if (sessionUser) {
+        loadHome(JSON.parse(sessionUser));
+    } else {
+        showLogin(); 
+    }
+};
+
+// Show Login Page
+function showLogin() {
+    if (sessionStorage.getItem("activeUser")) return showHomeDirect();
+    showPage("loginPage");
+}
+
+// Show Register Page
+function showRegister() {
+    if (sessionStorage.getItem("activeUser")) return showHomeDirect();
+    showPage("registerPage");
+}
+
+// After login redirect
+function showHomeDirect() {
+    const user = JSON.parse(sessionStorage.getItem("activeUser"));
+    loadHome(user);
+}
+
+/* -------------------------
+   REGISTER USER
+--------------------------*/
+function registerUser() {
+    const name = document.getElementById("regName").value;
+    const email = document.getElementById("regEmail").value;
+    const pass = document.getElementById("regPass").value;
+
+    if (!name || !email || !pass) return alert("All fields are required!");
+
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+    if (users.some(u => u.email === email)) {
+        return alert("User already exists.");
+    }
+
+    const newUser = { name, email, pass };
+    users.push(newUser);
+    localStorage.setItem("users", JSON.stringify(users));
+
+    // auto-login
+    sessionStorage.setItem("activeUser", JSON.stringify(newUser));
+    loadHome(newUser);
+}
+
+/* -------------------------
+   LOGIN USER
+--------------------------*/
+function loginUser() {
+    const email = document.getElementById("logEmail").value;
+    const pass = document.getElementById("logPass").value;
+
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const found = users.find(u => u.email === email && u.pass === pass);
+
+    if (!found) return alert("Invalid email or password");
+
+    sessionStorage.setItem("activeUser", JSON.stringify(found));
+    loadHome(found);
+}
+
+/* -------------------------
+   HOME PAGE LOAD
+--------------------------*/
+function loadHome(user) {
+    document.getElementById("welcomeText").innerText = "Welcome, " + user.name + "!";
+    showPage("homePage");
+}
+
+/* -------------------------
+   LOGOUT
+--------------------------*/
+function logoutUser() {
+    sessionStorage.removeItem("activeUser");
+    showLogin();
+}
+</script>
+
+</body>
+</html>
+
+<!-- ✔ Register Page
+Name, email, password
+Stored in localStorage
+Auto‑login after registering
+
+✔ Login Page
+Validates from stored users
+Loads user session into sessionStorage
+
+✔ Home Page
+Shows welcome message
+Only available when logged in
+
+✔ Session Persistence
+Page refresh keeps user logged in
+Uses sessionStorage for active session
+Uses localStorage for user database
+
+✔ Auto‑Redirect Rules
+Logged‑in users cannot see Register/Login
+Logged‑out users cannot see Home
+
+ -->
