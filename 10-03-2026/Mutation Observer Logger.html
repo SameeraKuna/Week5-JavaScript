@@ -1,0 +1,205 @@
+<!--  Mutation Observer Logger 
+
+Goal: Log DOM changes under a target container. 
+Constraints: Show batched changes every few seconds for readability. 
+Steps: 
+
+Observe attribute, child list, and subtree changes. 
+
+Display a panel with human-readable change descriptions. 
+
+Provide a toggle to pause/resume observation. 
+Success: Accurate, batched logs reflecting real DOM changes.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DOM Change Observer - Pastel UI</title>
+
+<style>
+    :root {
+        --pastel-blue: #a7c7e7;
+        --pastel-pink: #f7c5cc;
+        --pastel-purple: #d9b8ff;
+        --pastel-green: #beecc4;
+        --pastel-yellow: #fff3b0;
+        --dark: #333;
+    }
+
+    body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #fceff9, #e7f2ff);
+        padding: 20px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .panel {
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        width: 350px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    h2 {
+        margin-top: 0;
+        text-align: center;
+    }
+
+    #target {
+        background: var(--pastel-purple);
+        padding: 20px;
+        border-radius: 12px;
+        min-height: 200px;
+        width: 350px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    button {
+        padding: 10px 15px;
+        margin: 5px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        color: #fff;
+    }
+
+    .btn-blue { background: var(--pastel-blue); }
+    .btn-pink { background: var(--pastel-pink); }
+    .btn-green { background: var(--pastel-green); }
+    .btn-yellow { background: var(--pastel-yellow); color: #444; }
+
+    .log-entry {
+        background: #f7faff;
+        border-left: 4px solid var(--pastel-blue);
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 6px;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+</style>
+</head>
+<body>
+
+<!-- TARGET AREA -->
+<div id="target" class="panel">
+    <h2>Target Container</h2>
+    <p>Modify me using buttons!</p>
+</div>
+
+<!-- ACTIONS -->
+<div class="panel">
+    <h2>Actions</h2>
+    <button class="btn-blue" onclick="addElement()">Add Element</button>
+    <button class="btn-green" onclick="removeElement()">Remove Last</button>
+    <button class="btn-pink" onclick="changeAttribute()">Change Attribute</button>
+    <button class="btn-yellow" onclick="toggleObserver()"><span id="toggleText">Pause</span> Observer</button>
+</div>
+
+<!-- LOG PANEL -->
+<div class="panel">
+    <h2>Change Logs</h2>
+    <div id="logPanel"></div>
+</div>
+
+<script>
+    const target = document.getElementById("target");
+    const logPanel = document.getElementById("logPanel");
+    const toggleText = document.getElementById("toggleText");
+
+    let isObserving = true;
+    let mutationBuffer = [];
+
+    // ----------- DOM OBSERVER SETUP -----------
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach(m => mutationBuffer.push(m));
+    });
+
+    observer.observe(target, {
+        childList: true,
+        attributes: true,
+        subtree: true,
+    });
+
+    // ----------- BATCH LOGGING EVERY 2 SECONDS -----------
+    setInterval(() => {
+        if (mutationBuffer.length > 0) {
+            const batch = [...mutationBuffer];
+            mutationBuffer = [];
+            logBatch(batch);
+        }
+    }, 2000);
+
+    // ----------- LOGGING FUNCTION -----------
+    function logBatch(batch) {
+        const container = document.createElement("div");
+        container.className = "log-entry";
+
+        let output = `<strong>${batch.length} DOM changes detected:</strong><br><br>`;
+
+        batch.forEach(m => {
+            if (m.type === "childList") {
+                if (m.addedNodes.length)
+                    output += `• Added node(s): ${m.addedNodes.length}<br>`;
+                if (m.removedNodes.length)
+                    output += `• Removed node(s): ${m.removedNodes.length}<br>`;
+            }
+            if (m.type === "attributes") {
+                output += `• Attribute changed: <strong>${m.attributeName}</strong> on ${m.target.tagName}<br>`;
+            }
+        });
+
+        container.innerHTML = output;
+        logPanel.prepend(container);
+    }
+
+    // ----------- ACTION BUTTONS -----------
+    function addElement() {
+        const div = document.createElement("div");
+        div.textContent = "New element " + Math.floor(Math.random() * 100);
+        div.style.background = "white";
+        div.style.padding = "10px";
+        div.style.margin = "5px 0";
+        div.style.borderRadius = "6px";
+        target.appendChild(div);
+    }
+
+    function removeElement() {
+        const last = target.lastElementChild;
+        if (last && last.tagName !== "H2") last.remove();
+    }
+
+    function changeAttribute() {
+        target.style.borderColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
+        target.style.borderWidth = "3px";
+        target.style.borderStyle = "solid";
+    }
+
+    // ----------- OBSERVER TOGGLE -----------
+    function toggleObserver() {
+        if (isObserving) {
+            observer.disconnect();
+            toggleText.textContent = "Resume";
+        } else {
+            observer.observe(target, {
+                childList: true,
+                attributes: true,
+                subtree: true,
+            });
+            toggleText.textContent = "Pause";
+        }
+        isObserving = !isObserving;
+    }
+</script>
+
+</body>
+</html>

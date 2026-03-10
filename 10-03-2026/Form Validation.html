@@ -1,0 +1,276 @@
+<!-- Form Validation (Inline + Summary) 
+
+Goal: Validate a multi-field form with instant feedback and a summary on submit. 
+Constraints: No page reload; error states announced accessibly. 
+Steps: 
+
+Fields: name, email, password, confirm password, terms checkbox. 
+
+Show inline errors as the user moves focus away. 
+
+On submit, if invalid, scroll to first error and display a summary. 
+Success: Prevent submission on invalid input; clear guidance shown.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form Validation</title>
+
+<style>
+    body{
+        margin:0;
+        padding:20px;
+        font-family: "Segoe UI", sans-serif;
+        background:linear-gradient(135deg,#d9eaff,#f7faff);
+    }
+
+    .wrapper{
+        max-width:450px;
+        margin:auto;
+        background:white;
+        padding:30px;
+        border-radius:12px;
+        box-shadow:0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    h2{
+        text-align:center;
+        margin-top:0;
+        color:#0a4b78;
+    }
+
+    .form-group{
+        margin-bottom:18px;
+    }
+
+    label{
+        font-weight:600;
+        display:block;
+        margin-bottom:6px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"]{
+        width:100%;
+        padding:12px;
+        border:2px solid #ccc;
+        border-radius:8px;
+        font-size:15px;
+        transition:border-color .2s;
+    }
+
+    input.error{
+        border-color:#d9534f;
+        background:#ffecec;
+    }
+
+    .error-msg{
+        font-size:13px;
+        color:#d9534f;
+        margin-top:6px;
+        display:none;
+    }
+
+    #errorSummary{
+        background:#ffe6e6;
+        border-left:4px solid #d9534f;
+        padding:15px;
+        border-radius:8px;
+        margin-bottom:20px;
+        display:none;
+    }
+
+    #errorSummary ul{
+        margin:0;
+        padding-left:15px;
+    }
+
+    .terms{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-top:10px;
+    }
+
+    button{
+        width:100%;
+        padding:12px;
+        background:#0a4b78;
+        color:white;
+        border:none;
+        border-radius:8px;
+        font-size:16px;
+        cursor:pointer;
+        transition:background .2s;
+    }
+
+    button:hover{
+        background:#083f66;
+    }
+
+    @media(max-width:480px){
+        .wrapper{
+            padding:20px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+    <h2>Registration Form</h2>
+
+    <div id="errorSummary" aria-live="assertive"></div>
+
+    <form id="form" novalidate>
+
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="name">
+            <div class="error-msg">Name is required.</div>
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="email">
+            <div class="error-msg">Enter a valid email.</div>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password">
+            <div class="error-msg">Password must be at least 6 characters.</div>
+        </div>
+
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" id="confirmPassword">
+            <div class="error-msg">Passwords do not match.</div>
+        </div>
+
+        <div class="terms">
+            <input type="checkbox" id="terms">
+            <label for="terms">I agree to the terms</label>
+        </div>
+        <div class="error-msg" id="termsError">You must accept the terms.</div>
+
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<script>
+const form = document.getElementById("form");
+const summary = document.getElementById("errorSummary");
+
+const fields = {
+    name: document.getElementById("name"),
+    email: document.getElementById("email"),
+    password: document.getElementById("password"),
+    confirm: document.getElementById("confirmPassword"),
+    terms: document.getElementById("terms")
+};
+
+// Inline validation
+function validateField(input){
+    let msg = input.nextElementSibling;
+
+    if(input === fields.name){
+        if(input.value.trim() === ""){
+            return showError(input, msg);
+        }
+    }
+
+    if(input === fields.email){
+        let pattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+        if(!pattern.test(input.value)){
+            return showError(input, msg);
+        }
+    }
+
+    if(input === fields.password){
+        if(input.value.length < 6){
+            return showError(input, msg);
+        }
+    }
+
+    if(input === fields.confirm){
+        if(input.value !== fields.password.value){
+            return showError(input, msg);
+        }
+    }
+
+    hideError(input, msg);
+    return true;
+}
+
+function showError(input, msg){
+    input.classList.add("error");
+    msg.style.display = "block";
+    return false;
+}
+
+function hideError(input, msg){
+    input.classList.remove("error");
+    msg.style.display = "none";
+}
+
+// blur = inline validation
+Object.values(fields).forEach(f=>{
+    if(f.type !== "checkbox"){
+        f.addEventListener("blur", ()=> validateField(f));
+    }
+});
+
+// Submit validation
+form.addEventListener("submit", e=>{
+    e.preventDefault();
+
+    let errors = [];
+
+    let nameV = validateField(fields.name);
+    let emailV = validateField(fields.email);
+    let passV = validateField(fields.password);
+    let confirmV = validateField(fields.confirm);
+
+    let termsV = fields.terms.checked;
+    document.getElementById("termsError").style.display = termsV ? "none":"block";
+
+    if(!termsV) errors.push("You must accept the terms.");
+    if(!nameV) errors.push("Name is required.");
+    if(!emailV) errors.push("Enter a valid email.");
+    if(!passV) errors.push("Password must be at least 6 characters.");
+    if(!confirmV) errors.push("Passwords do not match.");
+
+    if(errors.length > 0){
+        showSummary(errors);
+        scrollToFirstError();
+        return;
+    }
+
+    summary.style.display = "none";
+    alert("Form Submitted Successfully!");
+});
+
+// Summary box
+function showSummary(errors){
+    summary.style.display = "block";
+    summary.innerHTML = "<strong>Please fix the following errors:</strong><ul>" 
+        + errors.map(e=> `<li>${e}</li>`).join("") 
+        + "</ul>";
+}
+
+// Scroll to first invalid field
+function scrollToFirstError(){
+    const first = document.querySelector(".error");
+    if(first){
+        first.scrollIntoView({ behavior:"smooth", block:"center" });
+        first.focus();
+    }
+}
+</script>
+
+</body>
+</html>

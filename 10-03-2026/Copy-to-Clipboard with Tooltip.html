@@ -1,0 +1,151 @@
+<!-- Copy-to-Clipboard with Tooltip 
+
+Goal: Implement a copy button that shows a temporary “Copied!” tooltip. 
+Constraints: Tooltip positioned near the button; auto-dismiss after delay. 
+Steps: 
+
+Render a block of text and a copy button. 
+
+Clicking copies the text and shows the tooltip. 
+
+Tooltip disappears after a few seconds, and on next copy reappears. 
+Success: Clipboard works and tooltip behavior is consistent.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Copy to Clipboard</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #a8edea, #fed6e3); /* soft pastel */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .copy-box {
+        width: 100%;
+        max-width: 480px;
+        background: #ffffff;
+        padding: 28px;
+        border-radius: 22px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        position: relative;
+        transition: 0.3s ease;
+    }
+
+    .copy-box:hover {
+        transform: translateY(-4px);
+    }
+
+    .heading {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 15px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .text-block {
+        background: #f5f7fa;
+        padding: 16px;
+        border-radius: 12px;
+        color: #444;
+        font-size: 15px;
+        line-height: 1.6;
+        border: 1px solid #e6e9ef;
+    }
+
+    button.copy-btn {
+        margin-top: 20px;
+        width: 100%;
+        padding: 13px;
+        border: none;
+        border-radius: 12px;
+        font-size: 17px;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        background: linear-gradient(135deg, #667eea, #764ba2); /* blue → purple */
+        transition: 0.3s ease;
+    }
+
+    button.copy-btn:hover {
+        background: linear-gradient(135deg, #6e8bff, #8752c8);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(118, 76, 162, 0.4);
+    }
+
+    /* Tooltip */
+    .tooltip {
+        position: absolute;
+        top: -40px;
+        right: 30px;
+        padding: 8px 16px;
+        background: #4caf50; /* calm success green */
+        color: #fff;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        opacity: 0;
+        transform: translateY(10px);
+        pointer-events: none;
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        box-shadow: 0 4px 14px rgba(76, 175, 80, 0.3);
+    }
+
+    .tooltip.show {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+
+    /* Mobile Improvements */
+    @media (max-width: 480px) {
+        .copy-box { padding: 20px; }
+        .heading { font-size: 20px; }
+        button.copy-btn { font-size: 15px; }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="copy-box">
+    <div class="tooltip" id="tooltip">Copied!</div>
+
+    <div class="heading">Copy Text</div>
+
+    <div class="text-block" id="copyText">
+        This is a beautiful, pastel-themed Copy-to-Clipboard UI with clean colors and smooth animations.
+    </div>
+
+    <button class="copy-btn" id="copyBtn">Copy</button>
+</div>
+
+<script>
+    const copyBtn = document.getElementById("copyBtn");
+    const copyText = document.getElementById("copyText");
+    const tooltip = document.getElementById("tooltip");
+
+    copyBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(copyText.innerText)
+            .then(() => {
+                tooltip.classList.add("show");
+                setTimeout(() => {
+                    tooltip.classList.remove("show");
+                }, 1800);
+            })
+            .catch(() => {
+                alert("Copy failed.");
+            });
+    });
+</script>
+
+</body>
+</html>

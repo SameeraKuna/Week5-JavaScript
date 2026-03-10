@@ -1,0 +1,163 @@
+<!-- Theme Toggle (Light/Dark) with Persistence 
+
+Goal: Toggle page theme and remember choice across reloads. 
+Constraints: Respect system preference on first load; override with toggle. 
+Steps: 
+
+Toggle control in the header. 
+
+Apply theme class on root element. 
+
+Store preference; on load, read and apply. 
+Success: Theme persists and overrides system setting after first toggle.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colorful Theme Toggle</title>
+
+    <style>
+        /* ---------- Light Theme Colors ---------- */
+        :root {
+            --bg: linear-gradient(135deg, #ffecd2, #fcb69f);
+            --text: #222;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --header-bg: rgba(255, 255, 255, 0.6);
+            --btn-bg: linear-gradient(135deg, #6a11cb, #2575fc);
+        }
+
+        /* ---------- Dark Theme Colors ---------- */
+        :root.dark {
+            --bg: linear-gradient(135deg, #141e30, #243b55);
+            --text: #f1f1f1;
+            --card-bg: rgba(0, 0, 0, 0.4);
+            --header-bg: rgba(0, 0, 0, 0.4);
+            --btn-bg: linear-gradient(135deg, #ff512f, #dd2476);
+        }
+
+        /* ---------- Global Layout ---------- */
+        body {
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background: var(--bg);
+            background-attachment: fixed;
+            color: var(--text);
+            transition: background 0.5s ease, color 0.3s ease;
+        }
+
+        /* ---------- Header ---------- */
+        .header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--header-bg);
+            backdrop-filter: blur(10px);
+            box-shadow: 0px 4px 10px rgb(0 0 0 / 20%);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        /* ---------- Toggle Button ---------- */
+        .toggle-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+            background: var(--btn-bg);
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        .toggle-btn:hover {
+            transform: scale(1.08);
+        }
+
+        /* ---------- Main Card ---------- */
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 30px;
+            background: var(--card-bg);
+            box-shadow: 0px 8px 25px rgb(0 0 0 / 20%);
+            border-radius: 15px;
+            backdrop-filter: blur(12px);
+            transition: background 0.3s ease;
+        }
+
+        .container h2 {
+            margin-top: 0;
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1>Colorful Theme Toggle</h1>
+
+        <button id="themeToggle" class="toggle-btn">
+            🌙 Dark Mode
+        </button>
+    </header>
+
+    <main class="container">
+        <h2>Welcome!</h2>
+        <p>
+            This UI is colorful, modern, responsive, and includes a light/dark
+            theme toggle that remembers your preference using localStorage.
+        </p>
+    </main>
+
+    <script>
+        const root = document.documentElement;
+        const toggleBtn = document.getElementById("themeToggle");
+
+        // ---------- Load Theme on Start ----------
+        (function () {
+            const saved = localStorage.getItem("theme");
+
+            if (saved) {
+                root.classList.toggle("dark", saved === "dark");
+            } else {
+                const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                root.classList.toggle("dark", prefersDark);
+            }
+
+            updateBtn();
+        })();
+
+        // ---------- Toggle Manually ----------
+        toggleBtn.addEventListener("click", () => {
+            root.classList.toggle("dark");
+
+            localStorage.setItem(
+                "theme",
+                root.classList.contains("dark") ? "dark" : "light"
+            );
+
+            updateBtn();
+        });
+
+        function updateBtn() {
+            toggleBtn.textContent = 
+                root.classList.contains("dark")
+                ? "☀️ Light Mode"
+                : "🌙 Dark Mode";
+        }
+    </script>
+
+</body>
+</html>

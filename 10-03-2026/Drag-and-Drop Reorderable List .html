@@ -1,0 +1,271 @@
+<!-- Drag-and-Drop Reorderable List 
+
+Goal: Allow reordering items via drag-and-drop. 
+Constraints: Include a keyboard fallback (e.g., move up/down buttons). 
+Steps: 
+
+List of 8 items with drag handles. 
+
+Drag to reorder; list updates visually and semantically. 
+
+Provide up/down controls for keyboard users. 
+Success: Order persists in DOM after drag; keyboard reordering works.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Drag and Drop Reorderable List</title>
+
+<style>
+body{
+  margin:0;
+  padding:30px;
+  font-family:Arial, sans-serif;
+  background:#0f1126;
+  color:white;
+  display:flex;
+  justify-content:center;
+}
+
+.container{
+  width:min(500px, 95vw);
+}
+
+h2{
+  text-align:center;
+  margin-bottom:20px;
+  color:#a8b2ff;
+}
+
+
+.item{
+  background:#1c2344;
+  padding:12px 14px;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border-radius:8px;
+  cursor:grab;
+  border:2px solid transparent;
+  transition:border .2s ease, transform .2s ease;
+}
+
+.item.dragging{
+  opacity:.4;
+  border-color:#4c6fff;
+}
+
+.drag-handle{
+  cursor:grab;
+  font-size:20px;
+  width:24px;
+  text-align:center;
+  color:#9bb0ff;
+}
+
+/* BUTTONS */
+.kb-controls{
+  margin-left:auto;
+  display:flex;
+  gap:6px;
+}
+
+.kb-btn{
+  background:#4c6fff;
+  color:white;
+  border:none;
+  padding:4px 8px;
+  border-radius:4px;
+  cursor:pointer;
+  font-size:12px;
+}
+
+/* MOBILE */
+@media (max-width:480px){
+  .kb-btn{ padding:4px; font-size:11px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Reorderable Drag & Drop List</h2>
+
+  <ul class="list" id="list">
+    <li class="item" draggable="true">
+      <div class="drag-handle">☰</div>
+      <span>Item 1</span>
+      <div class="kb-controls">
+        <button class="kb-btn" data-up>▲</button>
+        <button class="kb-btn" data-down>▼</button>
+      </div>
+    </li>
+
+    <li class="item" draggable="true">
+      <div class="drag-handle">☰</div>
+      <span>Item 2</span>
+      <div class="kb-controls">
+        <button class="kb-btn" data-up>▲</button>
+        <button class="kb-btn" data-down>▼</button>
+      </div>
+    </li>
+
+    <li class="item" draggable="true">
+      <div class="drag-handle">☰</div>
+      <span>Item 3</span>
+      <div class="kb-controls">
+        <button class="kb-btn" data-up>▲</button>
+        <button class="kb-btn" data-down>▼</button>
+      </div>
+    </li>
+
+    <li class="item" draggable="true">
+      <div class="drag-handle">☰</div>
+      <span>Item 4</span>
+      <div class="kb-controls">
+        <button class="kb-btn" data-up>▲</button>
+        <button class="kb-btn" data-down>▼</button>
+      </div>
+    </li>
+
+    <li class="item" draggable="true">
+      <div class="drag-handle">☰</div>
+      <span>Item 5</span>
+      <div class="kb-controls">
+        <button class="kb-btn" data-up>▲</button>
+        <button class="kb-btn" data-down>▼</button>
+      </div>
+    </li>
+
+    <li class="item" draggable="true">
+      <div class="drag-handle">☰</div>
+      <span>Item 6</span>
+      <div class="kb-controls">
+        <button class="kb-btn" data-up>▲</button>
+        <button class="kb-btn" data-down>▼</button>
+      </div>
+    </li>
+
+    <li class="item" draggable="true">
+      <div class="drag-handle">☰</div>
+      <span>Item 7</span>
+      <div class="kb-controls">
+        <button class="kb-btn" data-up>▲</button>
+        <button class="kb-btn" data-down>▼</button>
+      </div>
+    </li>
+
+    <li class="item" draggable="true">
+      <div class="drag-handle">☰</div>
+      <span>Item 8</span>
+      <div class="kb-controls">
+        <button class="kb-btn" data-up>▲</button>
+        <button class="kb-btn" data-down>▼</button>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<script>
+/* -----------------------------
+   DRAG AND DROP FUNCTIONALITY
+----------------------------- */
+const list = document.getElementById("list");
+let draggedItem = null;
+
+// Start drag
+list.addEventListener("dragstart", e => {
+  if (e.target.classList.contains("item")) {
+    draggedItem = e.target;
+    draggedItem.classList.add("dragging");
+  }
+});
+
+// End drag
+list.addEventListener("dragend", e => {
+  if (draggedItem) draggedItem.classList.remove("dragging");
+  draggedItem = null;
+});
+
+// Drag over
+list.addEventListener("dragover", e => {
+  e.preventDefault();
+
+  const afterElement = getDragAfterElement(list, e.clientY);
+  if (afterElement == null) {
+    list.appendChild(draggedItem);
+  } else {
+    list.insertBefore(draggedItem, afterElement);
+  }
+});
+
+// Find closest item after pointer position
+function getDragAfterElement(container, y) {
+  const items = [...container.querySelectorAll(".item:not(.dragging)")];
+
+  return items.reduce(
+    (closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      }
+      return closest;
+    },
+    { offset: Number.NEGATIVE_INFINITY, element: null }
+  ).element;
+}
+
+/* --------------------------------
+   BUTTON CLICK (UP / DOWN)
+---------------------------------- */
+document.querySelectorAll(".kb-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const li = btn.closest(".item");
+
+    if (btn.hasAttribute("data-up")) {
+      const prev = li.previousElementSibling;
+      if (prev) list.insertBefore(li, prev);
+    }
+
+    if (btn.hasAttribute("data-down")) {
+      const next = li.nextElementSibling;
+      if (next) list.insertBefore(next, li);
+    }
+
+    li.focus();
+  });
+});
+
+/* --------------------------------
+   KEYBOARD SUPPORT (↑ / ↓)
+---------------------------------- */
+list.querySelectorAll(".item").forEach(item => {
+  // Make list items focusable
+  item.tabIndex = 0;
+
+  item.addEventListener("keydown", e => {
+    const key = e.key;
+
+    if (key === "ArrowUp") {
+      const prev = item.previousElementSibling;
+      if (prev) list.insertBefore(item, prev);
+      item.focus();
+      e.preventDefault();
+    }
+
+    if (key === "ArrowDown") {
+      const next = item.nextElementSibling;
+      if (next) list.insertBefore(next, item);
+      item.focus();
+      e.preventDefault();
+    }
+  });
+});
+</script>
+</body>
+</html>

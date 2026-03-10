@@ -1,0 +1,212 @@
+<!-- Custom Modal Dialog 
+
+Goal: Implement an accessible modal with focus trapping. 
+Constraints: No page scroll while open; ESC closes; clicking overlay closes. 
+Steps: 
+
+“Open Modal” button triggers the modal. 
+
+Focus moves into the modal and cycles within. 
+
+Restore focus to the opener when closed. 
+Success: Keyboard-only users can fully use and exit the modal.  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modal Navigation</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f1126;
+  color: white;
+}
+body.no-scroll { 
+  overflow: hidden;
+}
+
+/* Center homepage button */
+.wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Buttons */
+button {
+  padding: 10px 18px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 6px;
+}
+.btn-main { background: #4c6fff; color: white; }
+.btn { background: #555; color: white; }
+.btn-danger { background: #d9534f; color: white; }
+
+/* Modal overlay */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.modal.is-open {
+  display: flex;
+}
+
+/* Modal box */
+.modal-content {
+  background: #1d2344;
+  width: min(450px, 90vw);
+  padding: 20px;
+  border-radius: 10px;
+  outline: none;
+  max-height: 80vh;
+  overflow: auto;
+}
+
+:focus {
+  outline: 3px solid #9ed0ff;
+  outline-offset: 2px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Homepage -->
+<div class="wrapper">
+  <button class="btn-main" data-open="#m1">Open Modal 1</button>
+</div>
+
+<!-- ================= MODAL 1 ================= -->
+<div class="modal" id="m1">
+  <div class="modal-content" tabindex="-1">
+    <h2>You are in Modal 1</h2>
+    <p>This is the first modal.</p>
+
+    <button class="btn" data-open="#m2">Go to Modal 2</button>
+    <button class="btn-danger" data-home>Back to Homepage</button>
+  </div>
+</div>
+
+<!-- ================= MODAL 2 ================= -->
+<div class="modal" id="m2">
+  <div class="modal-content" tabindex="-1">
+    <h2>You are in Modal 2</h2>
+    <p>This is the second modal.</p>
+
+    <button class="btn" data-open="#m3">Go to Modal 3</button>
+    <button class="btn-danger" data-home>Back to Homepage</button>
+  </div>
+</div>
+
+<!-- ================= MODAL 3 ================= -->
+<div class="modal" id="m3">
+  <div class="modal-content" tabindex="-1">
+    <h2>You are in Modal 3</h2>
+    <p>This is the last modal.</p>
+
+    <button class="btn-danger" data-home>Back to Homepage</button>
+  </div>
+</div>
+
+<script>
+// Track current modal
+let currentModal = null;
+
+// Focusable selectors
+const focusable = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+/* -------- OPEN MODAL -------- */
+function openModal(modal) {
+  closeModal(); // close previously opened modal if any
+
+  modal.classList.add("is-open");
+  currentModal = modal;
+  document.body.classList.add("no-scroll");
+
+  const dialog = modal.querySelector(".modal-content");
+  const first = dialog.querySelector(focusable) || dialog;
+
+  setTimeout(() => first.focus(), 30);
+}
+
+/* -------- CLOSE MODAL -------- */
+function closeModal() {
+  if (currentModal) {
+    currentModal.classList.remove("is-open");
+    currentModal = null;
+    document.body.classList.remove("no-scroll");
+  }
+}
+
+/* -------- FOCUS TRAP -------- */
+document.addEventListener("keydown", e => {
+  if (!currentModal || e.key !== "Tab") return;
+
+  const dialog = currentModal.querySelector(".modal-content");
+  const items = [...dialog.querySelectorAll(focusable)]
+    .filter(el => el.offsetParent !== null);
+
+  if (items.length === 0) return;
+
+  const first = items[0];
+  const last = items[items.length - 1];
+
+  if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  }
+});
+
+/* -------- EVENT HANDLERS -------- */
+
+// Open modal
+document.addEventListener("click", e => {
+  const btn = e.target.closest("[data-open]");
+  if (!btn) return;
+
+  const sel = btn.getAttribute("data-open");
+  const modal = document.querySelector(sel);
+
+  openModal(modal);
+});
+
+// Back to homepage
+document.addEventListener("click", e => {
+  const btn = e.target.closest("[data-home]");
+  if (!btn) return;
+  closeModal();
+});
+
+// Overlay click closes modal
+document.addEventListener("click", e => {
+  if (currentModal && e.target === currentModal) {
+    closeModal();
+  }
+});
+
+// ESC closes modal
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && currentModal) {
+    closeModal();
+  }
+});
+</script>
+
+</body>
+</html>

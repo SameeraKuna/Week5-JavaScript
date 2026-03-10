@@ -1,0 +1,206 @@
+<!-- Accessible Carousel (No Autoplay) 
+
+Goal: Build a carousel with previous/next controls and pagination dots. 
+Constraints: Keyboard support; each slide has proper aria attributes. 
+Steps: 
+
+Create 5 slides of mixed content. 
+
+Buttons for prev/next; dots jump to slide. 
+
+Only one slide visible; announce slide changes for screen readers. 
+Success: Fully operable by keyboard and assistive tech.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accessible Carousel</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background: #f3f4f6;
+    }
+
+    .carousel-container {
+        max-width: 700px;
+        margin: auto;
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .carousel-track {
+        display: flex;
+        transition: transform 0.5s ease;
+    }
+
+    .slide {
+        min-width: 100%;
+        padding: 40px;
+        box-sizing: border-box;
+        text-align: center;
+        font-size: 22px;
+    }
+
+    .slide img {
+        max-width: 100%;
+        border-radius: 8px;
+    }
+
+    /* Buttons */
+    .carousel-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #1f2937;
+        color: white;
+        border: none;
+        padding: 12px 16px;
+        font-size: 22px;
+        cursor: pointer;
+        border-radius: 50%;
+        z-index: 10;
+    }
+
+    .prev { left: 10px; }
+    .next { right: 10px; }
+
+    .carousel-btn:hover {
+        background: #111827;
+    }
+
+    /* Dots */
+    .dots {
+        text-align: center;
+        padding: 12px;
+        background: #e5e7eb;
+    }
+
+    .dots button {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: none;
+        margin: 0 6px;
+        background: #9ca3af;
+        cursor: pointer;
+    }
+
+    .dots button.active {
+        background: #2563eb;
+    }
+
+    @media (max-width: 600px) {
+        .slide { padding: 20px; font-size: 18px; }
+        .carousel-btn { padding: 8px 12px; font-size: 16px; }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="carousel-container"
+     role="region"
+     aria-label="Accessible Carousel">
+
+    <div class="carousel-track" id="carouselTrack">
+
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="Slide 1 of 5">
+            <h2>Welcome to the Carousel</h2>
+            <p>This is a fully accessible, keyboard-friendly carousel.</p>
+        </div>
+
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="Slide 2 of 5">
+            <img src="https://picsum.photos/seed/slide2/600/300" alt="Random Image Slide 2">
+        </div>
+
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="Slide 3 of 5">
+            <h2>Mixed Content</h2>
+            <p>You can place images, text, buttons—anything you want.</p>
+        </div>
+
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="Slide 4 of 5">
+            <img src="https://picsum.photos/seed/slide4/600/300" alt="Random Image Slide 4">
+        </div>
+
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="Slide 5 of 5">
+            <h2>Last Slide</h2>
+            <p>Fully responsive & screen-reader friendly!</p>
+        </div>
+
+    </div>
+
+    <!-- Buttons -->
+    <button class="carousel-btn prev" id="prevBtn" aria-label="Previous slide">&#10094;</button>
+    <button class="carousel-btn next" id="nextBtn" aria-label="Next slide">&#10095;</button>
+
+    <!-- Live region for assistive tech -->
+    <div id="srStatus" aria-live="polite" style="position:absolute; left:-9999px;"></div>
+
+    <!-- Pagination dots -->
+    <div class="dots" id="dots"></div>
+
+</div>
+
+<script>
+    const track = document.getElementById("carouselTrack");
+    const slides = document.querySelectorAll(".slide");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const dotsContainer = document.getElementById("dots");
+    const srStatus = document.getElementById("srStatus");
+
+    let currentIndex = 0;
+
+    // Create dots
+    slides.forEach((_, i) => {
+        const dot = document.createElement("button");
+        dot.setAttribute("aria-label", `Go to slide ${i + 1}`);
+        dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll(".dots button");
+
+    function updateCarousel() {
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+        dots.forEach(dot => dot.classList.remove("active"));
+        dots[currentIndex].classList.add("active");
+
+        srStatus.textContent = slides[currentIndex].getAttribute("aria-label");
+    }
+
+    prevBtn.addEventListener("click", () => {
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        updateCarousel();
+    });
+
+    nextBtn.addEventListener("click", () => {
+        currentIndex = (currentIndex + 1) % slides.length;
+        updateCarousel();
+    });
+
+    dots.forEach((dot, index) => {
+        dot.addEventListener("click", () => {
+            currentIndex = index;
+            updateCarousel();
+        });
+    });
+
+    // Keyboard arrows for navigation
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") nextBtn.click();
+        if (e.key === "ArrowLeft") prevBtn.click();
+    });
+
+    updateCarousel();
+</script>
+
+</body>
+</html>

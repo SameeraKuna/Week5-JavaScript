@@ -1,0 +1,158 @@
+<!-- Card Flip on Hover/Click 
+
+Goal: Cards reveal more info on flip interaction. 
+Constraints: Mobile fallback uses click/tap, not hover. 
+Steps: 
+
+Create a grid of info cards. 
+
+On desktop: flip on hover. 
+
+On touch devices: flip on tap and tap outside to close. 
+Success: Flip feels smooth; accessible on all devices.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flip Cards</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        padding: 40px 10px;
+        display: flex;
+        justify-content: center;
+    }
+
+    /* FIX — prevents touching after flip */
+    .card-wrapper {
+        padding: 32px;       /* large buffer area */
+        box-sizing: border-box;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 0px;            /* wrapper controls gaps */
+        max-width: 1100px;
+        width: 100%;
+    }
+
+    .card {
+        perspective: 1100px;
+        cursor: pointer;
+    }
+
+    .card-inner {
+        width: 100%;
+        height: 200px;
+        position: relative;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+        transform-origin: center;   /* FIX */
+        overflow: visible;          /* FIX */
+    }
+
+    /* Desktop hover */
+    .card:hover .card-inner:not(.touchmode) {
+        transform: rotateY(180deg);
+    }
+
+    .flip {
+        transform: rotateY(180deg);
+    }
+
+    .card-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        color: white;
+        font-size: 18px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255,255,255,0.4);
+        backdrop-filter: blur(5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    .back {
+        background: rgba(0, 0, 0, 0.55);
+        transform: rotateY(180deg);
+    }
+</style>
+</head>
+
+<body>
+
+<div class="grid">
+
+    <div class="card-wrapper">
+        <div class="card">
+            <div class="card-inner">
+                <div class="card-face front">HTML Basics</div>
+                <div class="card-face back">Structure webpages with tags.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-wrapper">
+        <div class="card">
+            <div class="card-inner">
+                <div class="card-face front">CSS Styling</div>
+                <div class="card-face back">Controls layout & visual design.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-wrapper">
+        <div class="card">
+            <div class="card-inner">
+                <div class="card-face front">JavaScript</div>
+                <div class="card-face back">Adds interactivity to websites.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-wrapper">
+        <div class="card">
+            <div class="card-inner">
+                <div class="card-face front">Responsive Design</div>
+                <div class="card-face back">Ensures mobile-friendly layout.</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const cards = document.querySelectorAll(".card-inner");
+    const isTouch = "ontouchstart" in window;
+
+    if (isTouch) {
+        cards.forEach(card => card.classList.add("touchmode"));
+
+        cards.forEach(card => {
+            card.addEventListener("click", (event) => {
+                event.stopPropagation();
+                cards.forEach(c => c !== card && c.classList.remove("flip"));
+                card.classList.toggle("flip");
+            });
+        });
+
+        document.addEventListener("click", () => {
+            cards.forEach(card => card.classList.remove("flip"));
+        });
+    }
+</script>
+
+</body>
+</html>

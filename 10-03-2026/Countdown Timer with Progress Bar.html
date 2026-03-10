@@ -1,0 +1,254 @@
+<!-- Countdown Timer with Progress Bar 
+
+Goal: Visual countdown tied to a progress bar. 
+Constraints: Pause/resume; when finished, disable controls and show message. 
+Steps: 
+
+Input for duration; start button to begin. 
+
+Update displayed time and progress every 100ms. 
+
+Pause/resume buttons; restart resets everything. 
+Success: Accurate timing and progress behavior across state changes.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colorful Countdown Timer</title>
+
+<style>
+/* 🌈 Vibrant Background */
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #ff6fd8, #3813c2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 15px;
+}
+
+/* 🌟 Colorful Card */
+.container {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
+    padding: 25px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.25);
+    border: 2px solid rgba(255,255,255,0.25);
+}
+
+h2 {
+    text-align: center;
+    color: #ffffff;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+/* 💠 Colorful Input */
+input {
+    width: 100%;
+    padding: 14px;
+    margin: 12px 0;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+    outline: none;
+    background: rgba(255,255,255,0.85);
+}
+
+/* 🎨 Colorful Buttons */
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+}
+
+button:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+button:disabled {
+    background: #7f8c8d;
+    opacity: 0.6;
+    transform: none;
+    cursor: not-allowed;
+}
+
+/* 📊 Colorful Progress Bar */
+.progress-wrapper {
+    background: rgba(255,255,255,0.4);
+    height: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff9a9e, #fad0c4, #fad0c4);
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px #ffd1dc;
+}
+
+/* ⏱ Time Display */
+.time-display {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 26px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(0,0,0,0.4);
+}
+
+/* ✔ Completion Message */
+.message {
+    text-align: center;
+    margin-top: 10px;
+    color: #00ffcc;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(0,0,0,0.4);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>⏱ Colorful Countdown Timer</h2>
+
+    <input type="number" id="durationInput" placeholder="Enter duration in seconds">
+
+    <div class="buttons">
+        <button id="startBtn">Start</button>
+        <button id="pauseBtn" disabled>Pause</button>
+        <button id="resumeBtn" disabled>Resume</button>
+        <button id="restartBtn" disabled>Restart</button>
+    </div>
+
+    <div class="progress-wrapper">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="time-display" id="timeDisplay">00:00</div>
+    <div class="message" id="message"></div>
+</div>
+
+
+<script>
+let interval = null;
+let totalMs = 0;
+let remainingMs = 0;
+let isPaused = false;
+
+// Convert ms → mm:ss
+function formatTime(ms) {
+    let seconds = Math.ceil(ms / 1000);
+    let m = Math.floor(seconds / 60);
+    let s = seconds % 60;
+    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+// Start Button
+startBtn.onclick = function () {
+    let duration = Number(durationInput.value);
+
+    if (!duration || duration <= 0) {
+        alert("Please enter a valid duration.");
+        return;
+    }
+
+    totalMs = duration * 1000;
+    remainingMs = totalMs;
+
+    timeDisplay.textContent = formatTime(remainingMs);
+    progressBar.style.width = "0%";
+    message.textContent = "";
+
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    resumeBtn.disabled = true;
+    restartBtn.disabled = false;
+
+    runTimer();
+};
+
+// Timer Interval
+function runTimer() {
+    interval = setInterval(() => {
+        if (!isPaused) {
+            remainingMs -= 100;
+
+            if (remainingMs <= 0) {
+                clearInterval(interval);
+                remainingMs = 0;
+
+                progressBar.style.width = "100%";
+                timeDisplay.textContent = "00:00";
+                message.textContent = "🎉 Time's Up!";
+
+                pauseBtn.disabled = true;
+                resumeBtn.disabled = true;
+                startBtn.disabled = false;
+                restartBtn.disabled = true;
+
+                return;
+            }
+
+            timeDisplay.textContent = formatTime(remainingMs);
+            let progress = ((totalMs - remainingMs) / totalMs) * 100;
+            progressBar.style.width = progress + "%";
+        }
+    }, 100);
+}
+
+// Pause
+pauseBtn.onclick = function () {
+    isPaused = true;
+    pauseBtn.disabled = true;
+    resumeBtn.disabled = false;
+};
+
+// Resume
+resumeBtn.onclick = function () {
+    isPaused = false;
+    resumeBtn.disabled = true;
+    pauseBtn.disabled = false;
+};
+
+// Restart
+restartBtn.onclick = function () {
+    clearInterval(interval);
+
+    progressBar.style.width = "0%";
+    timeDisplay.textContent = "00:00";
+    message.textContent = "";
+
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    resumeBtn.disabled = true;
+    restartBtn.disabled = true;
+};
+</script>
+
+</body>
+</html>

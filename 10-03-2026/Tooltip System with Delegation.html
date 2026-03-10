@@ -1,0 +1,178 @@
+<!-- Tooltip System with Delegation 
+
+Goal: Generic tooltip that reads content from data attributes. 
+Constraints: Single tooltip element reused; positioned near hovered element. 
+Steps: 
+
+Elements across the page have a data-* attribute for tooltip text. 
+
+On hover/focus, show tooltip near the target. 
+
+On leave/blur, hide tooltip; handle scroll/resize reposition. 
+Success: Only one tooltip in DOM; always positioned correctly.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colorful Tooltip System</title>
+
+<style>
+    :root {
+        --tooltip-bg: linear-gradient(135deg, #ff7eb3, #ff758c);
+        --tooltip-color: #fff;
+        --tooltip-radius: 10px;
+        --tooltip-padding: 10px 14px;
+        --tooltip-shadow: 0 6px 18px rgba(0,0,0,0.25);
+
+        --item-bg: linear-gradient(135deg, #7f7bff, #00c3ff);
+        --item-bg2: linear-gradient(135deg, #ff9a3b, #ff5d9e);
+        --item-bg3: linear-gradient(135deg, #6ee57a, #00b87a);
+    }
+
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        margin: 40px;
+        background: linear-gradient(120deg, #fdfbfb, #ebedee);
+        line-height: 1.6;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 32px;
+        background: linear-gradient(135deg, #ff8a00, #e52e71);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .item {
+        background: var(--item-bg);
+        padding: 25px;
+        border-radius: 14px;
+        width: 180px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: transform 0.2s, box-shadow 0.3s;
+        cursor: pointer;
+        color: white;
+        font-size: 18px;
+    }
+
+    .item:nth-child(2) { background: var(--item-bg2); }
+    .item:nth-child(3) { background: var(--item-bg3); }
+    .item:nth-child(4) { background: var(--item-bg2); }
+    .item:nth-child(5) { background: var(--item-bg); }
+
+    .item:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
+
+    #tooltip {
+        position: fixed;
+        background: var(--tooltip-bg);
+        color: var(--tooltip-color);
+        padding: var(--tooltip-padding);
+        border-radius: var(--tooltip-radius);
+        box-shadow: var(--tooltip-shadow);
+        pointer-events: none;
+        opacity: 0;
+        transform: scale(0.9);
+        transition: opacity 0.15s ease, transform 0.15s ease;
+        z-index: 9999;
+        font-size: 15px;
+        max-width: 250px;
+    }
+
+    #tooltip.visible {
+        opacity: 1;
+        transform: scale(1);
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Colorful Tooltip System</h1>
+
+<div class="items">
+    <div class="item" tabindex="0" data-tooltip="This is a colorful tooltip for item 1!">Item 1</div>
+    <div class="item" tabindex="0" data-tooltip="Bright and vibrant tooltip for item 2!">Item 2</div>
+    <div class="item" tabindex="0" data-tooltip="Tooltip with gradient colors for item 3!">Item 3</div>
+    <div class="item" tabindex="0" data-tooltip="Tooltip powered by event delegation!">Item 4</div>
+    <div class="item" tabindex="0" data-tooltip="Responsive & beautiful tooltip system!">Item 5</div>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+const tooltip = document.getElementById("tooltip");
+let activeElement = null;
+
+// Fix initial flicker by pre-measuring tooltip
+tooltip.style.top = "-9999px";
+tooltip.style.left = "-9999px";
+
+function showTooltip(target) {
+    const text = target.getAttribute("data-tooltip");
+    if (!text) return;
+
+    tooltip.textContent = text;
+    tooltip.classList.add("visible");
+    activeElement = target;
+    positionTooltip(target);
+}
+
+function hideTooltip() {
+    tooltip.classList.remove("visible");
+    activeElement = null;
+}
+
+function positionTooltip(el) {
+    const rect = el.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    let top = rect.top - tooltipRect.height - 12;
+    let left = rect.left + rect.width / 2 - tooltipRect.width / 2;
+
+    if (top < 0) top = rect.bottom + 12;
+
+    tooltip.style.top = `${top}px`;
+    tooltip.style.left = `${Math.max(10, Math.min(left, window.innerWidth - tooltipRect.width - 10))}px`;
+}
+
+document.addEventListener("mouseover", (e) => {
+    if (!e.target.matches("[data-tooltip]")) return;
+    if (e.relatedTarget && e.target.contains(e.relatedTarget)) return;
+    showTooltip(e.target);
+});
+
+document.addEventListener("mouseout", (e) => {
+    if (!e.target.matches("[data-tooltip]")) return;
+    if (e.relatedTarget && e.target.contains(e.relatedTarget)) return;
+    hideTooltip();
+});
+
+document.addEventListener("focusin", (e) => {
+    if (e.target.matches("[data-tooltip]")) showTooltip(e.target);
+});
+
+document.addEventListener("focusout", (e) => {
+    if (e.target.matches("[data-tooltip]")) hideTooltip();
+});
+
+window.addEventListener("scroll", () => activeElement && positionTooltip(activeElement), true);
+window.addEventListener("resize", () => activeElement && positionTooltip(activeElement));
+</script>
+
+</body>
+</html>

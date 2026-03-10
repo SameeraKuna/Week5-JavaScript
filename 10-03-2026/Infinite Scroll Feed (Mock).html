@@ -1,0 +1,155 @@
+<!-- Infinite Scroll Feed (Mock) 
+
+Goal: Append new “cards” as the user nears the bottom. 
+Constraints: Use an Intersection Observer; show a loading placeholder briefly. 
+Steps: 
+
+Render an initial batch of items. 
+
+When sentinel enters viewport, append more items. 
+
+Simulate network delay with a short timeout. 
+Success: Seamless loading experience without blocking UI.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infinite Scroll Feed</title>
+
+<style>
+    body{
+        margin:0;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #c9eaff, #f8faff);
+    }
+
+    h1{
+        text-align:center;
+        padding:20px;
+        margin:0;
+        background:#ffffff;
+        font-weight:600;
+        color:#0a4b78;
+        box-shadow:0 2px 6px rgba(0,0,0,0.1);
+        position:sticky;
+        top:0;
+        z-index:10;
+    }
+
+    .container{
+        max-width:1000px;
+        margin:30px auto;
+        padding:20px;
+        display:grid;
+        gap:20px;
+        grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    }
+
+    .card{
+        background:#ffffff;
+        padding:20px;
+        border-radius:12px;
+        border-left:6px solid #3498db;
+        box-shadow:0 3px 10px rgba(0,0,0,0.1);
+        transition:transform .2s, box-shadow .2s;
+    }
+
+    .card:hover{
+        transform:translateY(-6px);
+        box-shadow:0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    /* Loading shimmer */
+    .shimmer{
+        height:120px;
+        border-radius:12px;
+        background:linear-gradient(90deg,#e0e0e0 25%,#f0f0f0 50%,#e0e0e0 75%);
+        background-size:200% 100%;
+        animation:shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer{
+        0%{ background-position:200% 0; }
+        100%{ background-position:-200% 0; }
+    }
+
+    #loadingBox{
+        text-align:center;
+        margin:20px 0;
+    }
+
+    .loaderText{
+        color:#0a4b78;
+        font-size:18px;
+        font-weight:500;
+        margin-top:10px;
+    }
+
+</style>
+</head>
+<body>
+
+<h1>Infinite Scroll Feed</h1>
+
+<div class="container" id="feed"></div>
+
+<!-- Loading Shimmer -->
+<div id="loadingBox" style="display:none;">
+    <div class="container">
+        <div class="shimmer"></div>
+        <div class="shimmer"></div>
+        <div class="shimmer"></div>
+    </div>
+    <p class="loaderText">Loading more items...</p>
+</div>
+
+<!-- Sentinel -->
+<div id="sentinel" style="height:40px;"></div>
+
+<script>
+let feed = document.getElementById("feed");
+let loadingBox = document.getElementById("loadingBox");
+let sentinel = document.getElementById("sentinel");
+
+let batch = 1;
+
+// Render cards
+function createCards(count){
+    for(let i=1;i<=count;i++){
+        let div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+            <h3 style="margin-top:0;color:#0a4b78;">Card #${(batch-1)*10 + i}</h3>
+            <p style="color:#555;">This content was loaded dynamically.</p>
+        `;
+        feed.appendChild(div);
+    }
+}
+
+// Simulated loading delay
+function loadMore(){
+    loadingBox.style.display = "block";
+
+    setTimeout(()=>{
+        loadingBox.style.display = "none";
+        createCards(10);
+        batch++;
+    }, 1300);
+}
+
+// Intersection Observer
+let observer = new IntersectionObserver(entries => {
+    if(entries[0].isIntersecting){
+        loadMore();
+    }
+});
+
+observer.observe(sentinel);
+
+// First load
+createCards(12);
+</script>
+
+</body>
+</html>

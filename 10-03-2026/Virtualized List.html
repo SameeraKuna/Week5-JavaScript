@@ -1,0 +1,125 @@
+<!-- Virtualized List (Performance) 
+
+Goal: Render only visible rows from a very large list for performance. 
+Constraints: Smooth scrolling; correct placeholder heights to prevent jumps. 
+Steps: 
+
+Create a list representing 10,000 items. 
+
+Calculate which indexes are visible based on scroll position. 
+
+Render only those items; adjust spacer elements above/below. 
+Success: Memory stays low; scrolling remains smooth with accurate item positions.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pastel Virtualized List</title>
+
+<style>
+    :root {
+        --pastel-1: #ffd9e8;   /* pink */
+        --pastel-2: #d6eaff;   /* baby blue */
+        --pastel-3: #e8ffd6;   /* mint */
+        --pastel-4: #fff7d6;   /* cream */
+        --pastel-5: #ead6ff;   /* lavender */
+    }
+
+    body {
+        margin: 0;
+        background: linear-gradient(135deg,
+            var(--pastel-1),
+            var(--pastel-2),
+            var(--pastel-3),
+            var(--pastel-4),
+            var(--pastel-5)
+        );
+        background-size: cover;
+        font-family: "Segoe UI", Arial, sans-serif;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 500px;
+        height: 80vh;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        overflow-y: auto;
+        border: 2px solid rgba(255,255,255,0.5);
+        backdrop-filter: blur(4px);
+    }
+
+    .item {
+        padding: 15px;
+        margin: 8px;
+        font-size: 17px;
+        color: #3b3b3b;
+        border-radius: 10px;
+        font-weight: 600;
+        background: linear-gradient(
+            to right,
+            var(--pastel-2),
+            var(--pastel-3)
+        );
+        border: 1px solid #e0e0e0;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .item:hover {
+        transform: scale(1.03);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+</style>
+</head>
+
+<body>
+<div class="container" id="viewport">
+    <div id="topSpacer"></div>
+    <div id="content"></div>
+    <div id="bottomSpacer"></div>
+</div>
+
+<script>
+    const totalItems = 10000;
+    const itemHeight = 70; // fits pastel styling
+    const viewport = document.getElementById("viewport");
+    const topSpacer = document.getElementById("topSpacer");
+    const bottomSpacer = document.getElementById("bottomSpacer");
+    const content = document.getElementById("content");
+
+    const items = Array.from({ length: totalItems }, (_, i) => `Pastel Item ${i + 1}`);
+
+    let visibleCount = Math.ceil(viewport.clientHeight / itemHeight) + 5;
+
+    function renderList() {
+        const scrollTop = viewport.scrollTop;
+        const startIndex = Math.floor(scrollTop / itemHeight);
+        const endIndex = Math.min(startIndex + visibleCount, totalItems - 1);
+
+        topSpacer.style.height = `${startIndex * itemHeight}px`;
+        bottomSpacer.style.height = `${(totalItems - endIndex - 1) * itemHeight}px`;
+
+        content.innerHTML = "";
+        for (let i = startIndex; i <= endIndex; i++) {
+            const div = document.createElement("div");
+            div.className = "item";
+            div.textContent = items[i];
+            content.appendChild(div);
+        }
+    }
+
+    renderList();
+
+    viewport.addEventListener("scroll", () => requestAnimationFrame(renderList));
+    window.addEventListener("resize", () => {
+        visibleCount = Math.ceil(viewport.clientHeight / itemHeight) + 5;
+        renderList();
+    });
+</script>
+</body>
+</html>

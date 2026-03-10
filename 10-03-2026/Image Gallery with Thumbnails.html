@@ -1,0 +1,191 @@
+<!-- Image Gallery with Thumbnails 
+
+Goal: Clicking a thumbnail updates the large preview image and caption. 
+Constraints: Use a single large image element; preload images to avoid flicker. 
+Steps: 
+
+Show a row of 8 thumbnails below a large display area. 
+
+Clicking a thumbnail updates the large image and caption. 
+
+Visually mark the active thumbnail. 
+Success: Zero flicker on change; active state consistent.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Thumbnail Gallery</title>
+
+<style>
+body{
+  margin:0;
+  padding:20px;
+  background:#0f1126;
+  font-family:Arial, sans-serif;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* LARGE PREVIEW */
+.preview-box{
+  aspect-ratio:16/9;
+  background:#1c2244;
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.preview-box img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:opacity .25s ease;
+}
+
+/* CAPTION */
+#caption{
+  margin:15px 0 25px;
+  font-size:18px;
+  color:#c9d1ff;
+  text-align:center;
+}
+
+/* THUMBNAIL ROW */
+.thumb-row{
+  display:flex;}
+.thumb{
+  width:110px;
+  height:70px;
+  border-radius:6px;
+  overflow:hidden;
+  cursor:pointer;
+  border:2px solid transparent;
+  transition:border .2s, transform .2s;
+}
+.thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* ACTIVE STATE */
+.thumb.active{
+  border-color:#4c6fff;
+  transform:scale(1.05);
+}
+
+/* Mobile */
+@media(max-width:480px){
+  .thumb{
+    width:80px;
+    height:55px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<h2>Image Gallery</h2>
+
+<!-- LARGE PREVIEW -->
+<div class="preview-box">
+  <img id="largeImg" src="https://picsum.photos/id/1015/800/450" alt="Preview">
+</div>
+
+<div id="caption">Mountain Landscape</div>
+
+<!-- THUMBNAILS -->
+<div class="thumb-row">
+
+  <div class="thumb active" 
+       data-full="https://picsum.photos/id/1015/800/450" 
+       data-caption="Mountain Landscape">
+    <img src="https://picsum.photos/id/1015/200/120">
+  </div>
+
+  <div class="thumb" 
+       data-full="https://picsum.photos/id/1025/800/450" 
+       data-caption="Majestic Eagle">
+    <img src="https://picsum.photos/id/1025/200/120">
+  </div>
+
+  <div class="thumb" 
+       data-full="https://picsum.photos/id/1035/800/450" 
+       data-caption="Foggy Forest Path">
+    <img src="https://picsum.photos/id/1035/200/120">
+  </div>
+
+  <div class="thumb" 
+       data-full="https://picsum.photos/id/1003/800/450" 
+       data-caption="Snowy Mountains">
+    <img src="https://picsum.photos/id/1003/200/120">
+  </div>
+
+  <div class="thumb" 
+       data-full="https://picsum.photos/id/1040/800/450" 
+       data-caption="Green Hills">
+    <img src="https://picsum.photos/id/1040/200/120">
+  </div>
+
+  <div class="thumb" 
+       data-full="https://picsum.photos/id/1069/800/450" 
+       data-caption="Ocean Waves">
+    <img src="https://picsum.photos/id/1069/200/120">
+  </div>
+
+  <div class="thumb" 
+       data-full="https://picsum.photos/id/1050/800/450" 
+       data-caption="Lonely Road">
+    <img src="https://picsum.photos/id/1050/200/120">
+  </div>
+
+  <div class="thumb" 
+       data-full="https://picsum.photos/id/1057/800/450" 
+       data-caption="Sunset Lake">
+    <img src="https://picsum.photos/id/1057/200/120">
+  </div>
+
+</div>
+
+<script>
+// ------- PRELOAD FULL IMAGES (No flicker) -------
+document.querySelectorAll(".thumb").forEach(t => {
+  const img = new Image();
+  img.src = t.dataset.full;
+});
+
+// ------- Update preview on click -------
+const largeImg = document.getElementById("largeImg");
+const caption = document.getElementById("caption");
+
+document.querySelectorAll(".thumb").forEach(thumb => {
+  thumb.addEventListener("click", () => {
+
+    // Remove old active
+    document.querySelectorAll(".thumb")
+      .forEach(t => t.classList.remove("active"));
+
+    // Set new active
+    thumb.classList.add("active");
+
+    // Fade out
+    largeImg.style.opacity = 0;
+
+    setTimeout(() => {
+      largeImg.src = thumb.dataset.full;
+      caption.textContent = thumb.dataset.caption;
+
+      // Fade in
+      largeImg.style.opacity = 1;
+    }, 200);
+  });
+});
+</script>
+
+</body>
+</html>

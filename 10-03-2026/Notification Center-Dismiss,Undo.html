@@ -1,0 +1,217 @@
+<!-- Notification Center (Dismiss + Undo) 
+
+Goal: Dismissible notifications with an undo option for the last dismissed. 
+Constraints: Undo only available for a short window. 
+Steps: 
+
+Stack multiple notifications on the page. 
+
+Each has a close control that removes it. 
+
+Show an “Undo” snackbar after close; clicking restores the last dismissed. 
+Success: Undo restores full content and order.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notification Center - Rainbow UI</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(140deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1, #fbc2eb, #8fd3f4);
+        background-size: 400% 400%;
+        animation: rainbowBG 15s ease infinite;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    @keyframes rainbowBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .container {
+        width: 100%;
+        max-width: 500px;
+    }
+
+    /* RAINBOW CARD */
+    .notification {
+        background: #fff;
+        padding: 15px 18px;
+        margin: 10px 0;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        animation: slideIn 0.3s ease;
+        border-left: 6px solid transparent;
+        border-image: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet) 1;
+    }
+
+    .notification:hover {
+        box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+        transform: translateY(-2px);
+        transition: 0.2s;
+    }
+
+    .notification p {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    .close-btn {
+        cursor: pointer;
+        font-size: 18px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background: #ffe4e4;
+        color: #d32f2f;
+        transition: 0.25s;
+    }
+
+    .close-btn:hover {
+        background: #ffbaba;
+        transform: scale(1.1);
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Snackbar with rainbow highlight */
+    #snackbar {
+        visibility: hidden;
+        min-width: 250px;
+        background-color: #202020;
+        color: white;
+        padding: 14px 18px;
+        border-radius: 10px;
+        position: fixed;
+        left: 50%;
+        bottom: 30px;
+        transform: translateX(-50%);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        border: 3px solid transparent;
+        border-image: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet) 1;
+    }
+
+    #snackbar.show {
+        visibility: visible;
+        animation: fadein 0.5s, fadeout 0.5s 3s;
+    }
+
+    #undoBtn {
+        background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+        color: white;
+        border: none;
+        padding: 7px 14px;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: bold;
+        transition: 0.25s;
+    }
+
+    #undoBtn:hover {
+        filter: brightness(1.2);
+        transform: scale(1.05);
+    }
+
+    @keyframes fadein {
+        from { bottom: 10px; opacity: 0; }
+        to { bottom: 30px; opacity: 1; }
+    }
+
+    @keyframes fadeout {
+        from { bottom: 30px; opacity: 1; }
+        to { bottom: 10px; opacity: 0; }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container" id="notifyContainer">
+    <div class="notification">
+        <p>Your profile was updated successfully.</p>
+        <span class="close-btn">✖</span>
+    </div>
+
+    <div class="notification">
+        <p>New message received from Support Team.</p>
+        <span class="close-btn">✖</span>
+    </div>
+
+    <div class="notification">
+        <p>Reminder: Meeting at 4:00 PM today.</p>
+        <span class="close-btn">✖</span>
+    </div>
+</div>
+
+<!-- Snackbar -->
+<div id="snackbar">
+    <span>Notification dismissed</span>
+    <button id="undoBtn">UNDO</button>
+</div>
+
+<script>
+let lastRemoved = null;
+let undoTimer = null;
+
+const container = document.getElementById("notifyContainer");
+const snackbar = document.getElementById("snackbar");
+const undoBtn = document.getElementById("undoBtn");
+
+document.querySelectorAll(".close-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+        let notification = this.parentElement;
+        dismissNotification(notification);
+    });
+});
+
+function dismissNotification(notification) {
+    const index = [...container.children].indexOf(notification);
+
+    lastRemoved = { element: notification, index: index };
+
+    notification.remove();
+    showSnackbar();
+}
+
+function showSnackbar() {
+    snackbar.classList.add("show");
+
+    clearTimeout(undoTimer);
+    undoTimer = setTimeout(() => {
+        snackbar.classList.remove("show");
+        lastRemoved = null;
+    }, 3000);
+}
+
+undoBtn.addEventListener("click", () => {
+    if (lastRemoved) {
+        let { element, index } = lastRemoved;
+
+        if (index >= container.children.length) {
+            container.appendChild(element);
+        } else {
+            container.insertBefore(element, container.children[index]);
+        }
+        lastRemoved = null;
+    }
+    snackbar.classList.remove("show");
+});
+</script>
+
+</body>
+</html>

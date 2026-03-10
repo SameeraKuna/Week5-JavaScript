@@ -1,0 +1,220 @@
+<!-- Form Wizard (Multi-Step) 
+
+Goal: Break a form into steps with “Next/Back” and a progress indicator. 
+Constraints: Validate step-by-step; cannot proceed if invalid. 
+Steps: 
+
+At least 3 steps; progress bar shows percentage. 
+
+Validate inputs at each step. 
+
+Show a final review step summarizing all inputs before submit. 
+Success: Clear step transitions with validation gating.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Form Wizard (Multi-Step)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f7;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .wizard-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            position: relative;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4e9bf7, #a45de4);
+            width: 0;
+            transition: width 0.3s ease;
+        }
+        .steps {
+            padding: 20px;
+        }
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+        }
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .next { background-color: #4e9bf7; color: #fff; }
+        .back { background-color: #aaa; color: #fff; }
+        .review p {
+            margin: 8px 0;
+        }
+        @media (max-width: 600px) {
+            .actions { flex-direction: column; gap: 10px; }
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+        }
+        input[type="text"], input[type="email"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard-container">
+        <div class="progress-bar"><div class="fill" id="progress"></div></div>
+        <form id="wizard-form">
+            <div class="steps">
+                <div class="step active" data-step="1">
+                    <h2>Step 1: Personal Info</h2>
+                    <label>Name<br /><input type="text" id="name" required /></label>
+                    <div class="error" id="error-name"></div>
+                    <label>Email<br /><input type="email" id="email" required /></label>
+                    <div class="error" id="error-email"></div>
+                </div>
+                <div class="step" data-step="2">
+                    <h2>Step 2: Address</h2>
+                    <label>City<br /><input type="text" id="city" required /></label>
+                    <div class="error" id="error-city"></div>
+                    <label>Zip Code<br /><input type="number" id="zip" required /></label>
+                    <div class="error" id="error-zip"></div>
+                </div>
+                <div class="step" data-step="3">
+                    <h2>Step 3: Preferences</h2>
+                    <label>Favorite Color<br /><input type="text" id="color" /></label>
+                    <label>Hobby<br /><input type="text" id="hobby" /></label>
+                </div>
+                <div class="step review" data-step="4">
+                    <h2>Review & Submit</h2>
+                    <p><strong>Name:</strong> <span id="rev-name"></span></p>
+                    <p><strong>Email:</strong> <span id="rev-email"></span></p>
+                    <p><strong>City:</strong> <span id="rev-city"></span></p>
+                    <p><strong>Zip:</strong> <span id="rev-zip"></span></p>
+                    <p><strong>Color:</strong> <span id="rev-color"></span></p>
+                    <p><strong>Hobby:</strong> <span id="rev-hobby"></span></p>
+                </div>
+            </div>
+            <div class="actions">
+                <button type="button" class="back" id="backBtn" disabled>Back</button>
+                <button type="button" class="next" id="nextBtn">Next</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const steps = document.querySelectorAll('.step');
+            const progress = document.getElementById('progress');
+            const nextBtn = document.getElementById('nextBtn');
+            const backBtn = document.getElementById('backBtn');
+            let currentStep = 1;
+
+            function updateProgress() {
+                const percent = ((currentStep - 1) / (steps.length - 1)) * 100;
+                progress.style.width = percent + '%';
+            }
+
+            function showStep(step) {
+                steps.forEach(s => s.classList.toggle('active', +s.dataset.step === step));
+                backBtn.disabled = step === 1;
+                nextBtn.textContent = step === steps.length ? 'Submit' : 'Next';
+                updateProgress();
+            }
+
+            function validateStep(step) {
+                let valid = true;
+                // clear errors
+                document.querySelectorAll('.error').forEach(e => e.textContent = '');
+                if(step === 1) {
+                    const name = document.getElementById('name');
+                    const email = document.getElementById('email');
+                    if(!name.value.trim()) {
+                        document.getElementById('error-name').textContent = 'Name required';
+                        valid = false;
+                    }
+                    if(!email.value.trim() || !/^[^@]+@[^@]+\.[^@]+$/.test(email.value)) {
+                        document.getElementById('error-email').textContent = 'Valid email required';
+                        valid = false;
+                    }
+                } else if(step === 2) {
+                    const city = document.getElementById('city');
+                    const zip = document.getElementById('zip');
+                    if(!city.value.trim()) {
+                        document.getElementById('error-city').textContent = 'City required';
+                        valid = false;
+                    }
+                    if(!zip.value.trim()) {
+                        document.getElementById('error-zip').textContent = 'Zip required';
+                        valid = false;
+                    }
+                }
+                return valid;
+            }
+
+            function fillReview() {
+                document.getElementById('rev-name').textContent = document.getElementById('name').value;
+                document.getElementById('rev-email').textContent = document.getElementById('email').value;
+                document.getElementById('rev-city').textContent = document.getElementById('city').value;
+                document.getElementById('rev-zip').textContent = document.getElementById('zip').value;
+                document.getElementById('rev-color').textContent = document.getElementById('color').value;
+                document.getElementById('rev-hobby').textContent = document.getElementById('hobby').value;
+            }
+
+            nextBtn.addEventListener('click', function() {
+                if(currentStep < steps.length) {
+                    if(validateStep(currentStep)) {
+                        currentStep++;
+                        if(currentStep === steps.length) fillReview();
+                        showStep(currentStep);
+                    }
+                } else {
+                    // submit
+                    alert('Form submitted!');
+                }
+            });
+
+            backBtn.addEventListener('click', function() {
+                if(currentStep > 1) {
+                    currentStep--;
+                    showStep(currentStep);
+                }
+            });
+
+            showStep(currentStep);
+        });
+    </script>
+</body>
+</html>

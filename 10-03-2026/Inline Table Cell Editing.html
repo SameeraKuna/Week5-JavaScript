@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inline Table Cell Editing</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .editable {
+            cursor: pointer;
+            position: relative;
+        }
+        .editable:hover::after {
+            content: '✏️';
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.7;
+        }
+        .editing input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            font-size: inherit;
+            font-family: inherit;
+        }
+        .editing .save-btn {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 4px 8px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .editing:hover .save-btn {
+            opacity: 1;
+        }
+        .editing .save-btn:hover {
+            background-color: #218838;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            th, td {
+                padding: 8px;
+                font-size: 14px;
+            }
+            table {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Inline Table Cell Editing</h1>
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>City</th>
+                    <th>Occupation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="editable">John Doe</td>
+                    <td class="editable">28</td>
+                    <td class="editable">New York</td>
+                    <td class="editable">Engineer</td>
+                </tr>
+                <tr>
+                    <td class="editable">Jane Smith</td>
+                    <td class="editable">32</td>
+                    <td class="editable">Los Angeles</td>
+                    <td class="editable">Designer</td>
+                </tr>
+                <tr>
+                    <td class="editable">Bob Johnson</td>
+                    <td class="editable">45</td>
+                    <td class="editable">Chicago</td>
+                    <td class="editable">Manager</td>
+                </tr>
+                <tr>
+                    <td class="editable">Alice Brown</td>
+                    <td class="editable">29</td>
+                    <td class="editable">Houston</td>
+                    <td class="editable">Developer</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.getElementById('data-table');
+
+            table.addEventListener('dblclick', function(e) {
+                if (e.target.classList.contains('editable')) {
+                    makeEditable(e.target);
+                }
+            });
+
+            function makeEditable(cell) {
+                const originalText = cell.textContent;
+                cell.classList.add('editing');
+                cell.innerHTML = `<input type="text" value="${originalText}"> <button class="save-btn">💾</button>`;
+
+                const input = cell.querySelector('input');
+                const saveBtn = cell.querySelector('.save-btn');
+
+                input.focus();
+                input.select();
+
+                function save() {
+                    const newText = input.value.trim();
+                    cell.textContent = newText || originalText;
+                    cell.classList.remove('editing');
+                }
+
+                function cancel() {
+                    cell.textContent = originalText;
+                    cell.classList.remove('editing');
+                }
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        save();
+                    } else if (e.key === 'Escape') {
+                        cancel();
+                    }
+                });
+
+                saveBtn.addEventListener('click', save);
+
+                // Click outside to cancel
+                document.addEventListener('click', function outsideClick(e) {
+                    if (!cell.contains(e.target)) {
+                        cancel();
+                        document.removeEventListener('click', outsideClick);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

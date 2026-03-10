@@ -1,0 +1,190 @@
+<!-- Content Sections Table of Contents (ScrollSpy) 
+
+Goal: Highlight the current section in a sidebar TOC while scrolling. 
+Constraints: Smooth scroll on click; accurate active state near section boundaries. 
+Steps: 
+
+Generate a TOC from headings on the page. 
+
+Clicking a TOC item scrolls to the section. 
+
+As the user scrolls, update the active TOC item. 
+Success: Active highlight reliably follows the section in view.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScrollSpy TOC</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        scroll-behavior: smooth;
+        display: flex;
+    }
+
+    /* SIDEBAR */
+    #toc {
+        width: 250px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        overflow-y: auto;
+        background: #111827;
+        color: white;
+        padding: 20px;
+    }
+
+    #toc h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: #93c5fd;
+    }
+
+    #toc ul {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    #toc li {
+        margin: 8px 0;
+    }
+
+    #toc a {
+        text-decoration: none;
+        color: #d1d5db;
+        font-size: 16px;
+        display: block;
+        padding: 6px 10px;
+        border-radius: 4px;
+        transition: 0.3s;
+    }
+
+    #toc a.active {
+        background: #2563eb;
+        color: white;
+        font-weight: bold;
+    }
+
+    #toc a:hover {
+        background: #1e40af;
+        color: white;
+    }
+
+    /* MAIN CONTENT */
+    .content {
+        margin-left: 280px;
+        padding: 30px;
+        max-width: 800px;
+    }
+
+    section {
+        margin-bottom: 80px;
+        padding-bottom: 40px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    section h2 {
+        font-size: 28px;
+        margin-bottom: 10px;
+        color: #1f2937;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        body {
+            flex-direction: column;
+        }
+        #toc {
+            width: 100%;
+            height: auto;
+            position: relative;
+        }
+        .content {
+            margin-left: 0;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<!-- TABLE OF CONTENTS (auto-filled by JS) -->
+<div id="toc">
+    <h2>Contents</h2>
+    <ul id="tocList"></ul>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content" id="mainContent">
+
+    <!-- Example Sections -->
+    <section>
+        <h2>Introduction</h2>
+        <p>Welcome to the ScrollSpy demo. This section introduces the concept.</p>
+    </section>
+
+    <section>
+        <h2>How ScrollSpy Works</h2>
+        <p>ScrollSpy tracks which section is visible and highlights it in the sidebar.</p>
+    </section>
+
+    <section>
+        <h2>Smooth Scrolling</h2>
+        <p>Clicking any item in the TOC smoothly scrolls to its section.</p>
+    </section>
+
+    <section>
+        <h2>Responsive Design</h2>
+        <p>The layout adjusts beautifully on mobile devices.</p>
+    </section>
+
+    <section>
+        <h2>Conclusion</h2>
+        <p>ScrollSpy enhances UX for long pages and documentation sites.</p>
+    </section>
+
+</div>
+
+<script>
+    // Generate TOC dynamically from all <h2> inside <section>
+    const sections = document.querySelectorAll("section h2");
+    const tocList = document.getElementById("tocList");
+
+    sections.forEach((sec, index) => {
+        const id = "section-" + index;
+        sec.parentElement.id = id;
+
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="#${id}">${sec.innerText}</a>`;
+        tocList.appendChild(li);
+    });
+
+    const tocLinks = document.querySelectorAll("#toc a");
+
+    // ScrollSpy Logic
+    window.addEventListener("scroll", () => {
+        let current = "";
+
+        sections.forEach(sec => {
+            const top = sec.parentElement.offsetTop;
+            if (scrollY >= top - 150) {
+                current = sec.parentElement.id;
+            }
+        });
+
+        tocLinks.forEach(a => {
+            a.classList.remove("active");
+            if (a.getAttribute("href") === "#" + current) {
+                a.classList.add("active");
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

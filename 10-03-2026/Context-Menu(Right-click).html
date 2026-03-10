@@ -1,0 +1,197 @@
+<!-- Context Menu (Right-Click) 
+
+Goal: Custom context menu on right-click with actions relevant to the target. 
+Constraints: Clicking elsewhere closes the menu; ESC closes. 
+Steps: 
+
+Implement a menu that appears at cursor position. 
+
+Menu options vary depending on the element clicked. 
+
+Ensure it never overflows the viewport. 
+Success: Menu behaves like native context menus across scenarios.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Custom Context Menu - Pastel Edition</title>
+
+<style>
+    /* 🎨 Pastel Palette */
+    :root {
+        --pastel-blue: #A7C7E7;
+        --pastel-pink: #F7C5CC;
+        --pastel-purple: #D9B8FF;
+        --pastel-yellow: #FFF3B0;
+        --pastel-green: #BEECC4;
+        --text-dark: #333;
+        --menu-bg: #ffffff;
+        --menu-hover: #f3f6ff;
+        --shadow: rgba(0,0,0,0.18);
+    }
+
+    body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #FBE7E6, #E8F3FF);
+        margin: 0;
+        padding: 20px;
+    }
+
+    h2 {
+        text-align: center;
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: 26px;
+    }
+
+    /* Pastel boxes container */
+    .items-container {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 40px;
+        padding-bottom: 40px;
+    }
+
+    .item {
+        width: 150px;
+        height: 150px;
+        border-radius: 14px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: 600;
+        transition: 0.3s ease;
+        color: var(--text-dark);
+        box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    /* Assign pastel colors */
+    .item[data-type="image"] {
+        background: var(--pastel-blue);
+    }
+    .item[data-type="text"] {
+        background: var(--pastel-pink);
+    }
+    .item[data-type="file"] {
+        background: var(--pastel-purple);
+    }
+
+    .item:hover {
+        transform: scale(1.05);
+        filter: brightness(1.05);
+    }
+
+    /* CONTEXT MENU - PASTEL THEME */
+    .context-menu {
+        position: absolute;
+        background: var(--menu-bg);
+        border-radius: 10px;
+        min-width: 200px;
+        box-shadow: 0 8px 25px var(--shadow);
+        padding: 10px 0;
+        display: none;
+        z-index: 9999;
+        animation: fadeIn 0.15s ease;
+        border: 1px solid #eaeaea;
+    }
+
+    @keyframes fadeIn {
+        from {opacity: 0; transform: scale(0.92);}
+        to {opacity: 1; transform: scale(1);}
+    }
+
+    .context-menu-item {
+        padding: 12px 18px;
+        cursor: pointer;
+        font-size: 16px;
+        color: var(--text-dark);
+        border-left: 5px solid transparent;
+    }
+
+    /* Pastel hover highlighting */
+    .context-menu-item:hover {
+        background: var(--menu-hover);
+        border-left: 5px solid var(--pastel-purple);
+    }
+</style>
+</head>
+<body>
+
+<h2>Right‑Click on Any Pastel Box</h2>
+
+<div class="items-container">
+    <div class="item" data-type="image">Image</div>
+    <div class="item" data-type="text">Text</div>
+    <div class="item" data-type="file">File</div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div id="contextMenu" class="context-menu"></div>
+
+<script>
+    const contextMenu = document.getElementById("contextMenu");
+    let clickedElement = null;
+
+    document.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+
+        if (e.target.classList.contains("item")) {
+            clickedElement = e.target;
+            showMenu(e.pageX, e.pageY, e.target.dataset.type);
+        } else {
+            hideMenu();
+        }
+    });
+
+    function showMenu(x, y, type) {
+        const actions = {
+            image: ["View", "Download", "Share", "Delete"],
+            text: ["Copy Text", "Edit", "Highlight", "Delete"],
+            file: ["Open", "Rename", "Move", "Delete"]
+        };
+
+        contextMenu.innerHTML = actions[type]
+            .map(a => `<div class="context-menu-item">${a}</div>`)
+            .join("");
+
+        contextMenu.style.display = "block";
+
+        const menuWidth = contextMenu.offsetWidth;
+        const menuHeight = contextMenu.offsetHeight;
+        const pageWidth = window.innerWidth;
+        const pageHeight = window.innerHeight;
+
+        if (x + menuWidth > pageWidth) x = pageWidth - menuWidth - 10;
+        if (y + menuHeight > pageHeight) y = pageHeight - menuHeight - 10;
+
+        contextMenu.style.left = x + "px";
+        contextMenu.style.top = y + "px";
+    }
+
+    function hideMenu() {
+        contextMenu.style.display = "none";
+    }
+
+    document.addEventListener("click", (e) => {
+        if (!contextMenu.contains(e.target)) hideMenu();
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") hideMenu();
+    });
+
+    contextMenu.addEventListener("click", (e) => {
+        if (e.target.classList.contains("context-menu-item")) {
+            alert(`You selected "${e.target.textContent}" on ${clickedElement.dataset.type}.`);
+            hideMenu();
+        }
+    });
+</script>
+
+</body>
+</html>

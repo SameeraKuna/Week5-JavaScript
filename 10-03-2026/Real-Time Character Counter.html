@@ -1,0 +1,166 @@
+<!-- Real-Time Character Counter 
+
+Goal: Show characters left and soft-limit warning. 
+Constraints: Hard limit enforced; warning at 80% usage. 
+Steps: 
+
+Textarea with a defined maximum length. 
+
+Show “X / Max” and a colored warning as user types. 
+
+Prevent input beyond the hard limit. 
+Success: Clear feedback and strict enforcement.  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Real-Time Character Counter with Shake Warning</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+        background: linear-gradient(135deg, #4f8cff, #6ad0ff);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 500px;
+        background: #ffffff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    textarea {
+        width: 100%;
+        height: 150px;
+        padding: 15px;
+        font-size: 16px;
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        transition: border-color 0.3s ease;
+        resize: none;
+    }
+
+    textarea:focus {
+        border-color: #4f8cff;
+        outline: none;
+    }
+
+    .counter-box {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .counter {
+        color: #444;
+    }
+
+    .warning {
+        color: #e67e22;
+        display: none;
+    }
+
+    .danger {
+        color: #e74c3c;
+    }
+
+    /* 🔥 Shake animation */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-4px); }
+        40% { transform: translateX(4px); }
+        60% { transform: translateX(-3px); }
+        80% { transform: translateX(3px); }
+    }
+
+    .shake {
+        animation: shake 0.6s ease;
+    }
+
+    @media (max-width: 480px) {
+        textarea {
+            height: 120px;
+        }
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h2>Real-Time Character Counter</h2>
+
+    <textarea id="textInput" maxlength="200" placeholder="Start typing here..."></textarea>
+
+    <div class="counter-box">
+        <span id="warningText" class="warning">⚠ Reached 80% of limit</span>
+        <span id="charCounter" class="counter">0 / 200</span>
+    </div>
+</div>
+
+<script>
+    const textarea     = document.getElementById("textInput");
+    const charCounter  = document.getElementById("charCounter");
+    const warningText  = document.getElementById("warningText");
+
+    const MAX = textarea.getAttribute("maxlength");
+
+    textarea.addEventListener("input", function () {
+        let currentLength = textarea.value.length;
+
+        charCounter.textContent = `${currentLength} / ${MAX}`;
+
+        // Soft-warning at 80% usage
+        if (currentLength >= MAX * 0.8 && currentLength < MAX) {
+            warningText.textContent = "⚠ Reached 80% of limit";
+            warningText.style.display = "inline";
+            warningText.classList.remove("danger");
+            charCounter.classList.add("danger");
+        }
+
+        // Hard limit reached
+        else if (currentLength === MAX) {
+            warningText.textContent = "🚫 Maximum limit reached";
+            warningText.style.display = "inline";
+            warningText.classList.add("danger");
+            charCounter.classList.add("danger");
+
+            // 🔥 Trigger shake animation
+            warningText.classList.remove("shake");
+            void warningText.offsetWidth; // Force reflow to restart animation
+            warningText.classList.add("shake");
+        }
+
+        // Normal state
+        else {
+            warningText.style.display = "none";
+            charCounter.classList.remove("danger");
+            warningText.classList.remove("shake");
+        }
+    });
+</script>
+
+</body>
+</html>
