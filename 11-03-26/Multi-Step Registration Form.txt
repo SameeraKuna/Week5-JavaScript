@@ -1,0 +1,98 @@
+🌟 What Are Regular Expressions?
+A Regular Expression (RegEx) is a pattern‑matching language used to search, validate, and manipulate text.
+They are used to:
+Validate input (email, phone number, password)
+Extract specific text from strings
+Replace or clean data
+Search for patterns within text
+🧠 Basic Components of Regular Expressions
+Let’s break everything down step by step.
+1️⃣ Literals
+Matches exact characters.
+Eg:hello
+Matches the word "hello".
+2️⃣ Anchors
+Used to match positions (not characters).
+^   Start of string
+$   End of string
+Example:^hello$
+Matches only "hello", not "hello world".
+3️⃣ Character Classes
+📌 Match any one character from a set:
+[abc] ->Matches: a, b, or c
+📌 Range:
+[a-z]
+[0-9]
+[A-Z]
+📌 Negation (NOT):
+[^a-z] ->Matches anything except lowercase letters.
+4️⃣ Special Character Types
+\d  digit (0–9)
+\s  whitespace  
+\w  word characters (a–z, A–Z, 0–9, _)
+.   any character except newline
+5️⃣ Quantifiers
+They specify how many times something should repeat.
+*       0 or more
++       1 or more
+?       0 or 1 (optional)
+{n}     exactly n times
+{n,}    at least n times
+{n,m}   between n and m times
+Example:
+a{3} ->Matches: aaa
+\d{10} ->Matches a 10‑digit number.
+6️⃣ Groups
+Parentheses allow grouping:
+(abc)+
+Matches:
+abc
+abcabc
+abcabcabc
+7️⃣ Alternation
+Acts like OR:
+cat|dog ->Matches either "cat" or "dog".
+8️⃣ Escaping Special Characters
+Some characters have special meanings.
+Use \ to treat them as literal.
+Example:
+\.   → literal dot  
+\+   → literal plus  
+\?   → literal question mark
+⭐ Putting It All Together: Real Examples
+✅ Example 1: Email Validation
+/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+Meaning:
+Start ^
+One or more characters not space/@
+@ symbol
+Domain name
+Dot
+TLD
+End $
+✅ Example 2: Phone Number Validation
+/^\+?[\d\s-()]{10,}$/
+Meaning:
+Optional +
+Digits, spaces, hyphens, parentheses allowed
+At least 10 characters
+✅ Example 3: Strong Password
+/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/
+
+⭐(?=.*[A-Z]) — Must contain at least one uppercase letter
+->(?=...)   checks that something must exist ahead
+->.*        any characters
+->[A-Z]     at least one uppercase A–Z
+⭐(?=.*\d) — Must contain at least one digit
+⭐(?=.*[@$!%*?&]) — Must contain at least one special character
+Character set includes:
+@ $ ! % * ? &
+So password must include any one or more of these.
+⭐.{8,} — Minimum 8 characters
+->.         any character
+-> {8,}     at least 8 characters long(no upper limit)
+Meaning:
+At least 1 uppercase
+At least 1 number
+At least 1 special character
+Minimum 8 characters
