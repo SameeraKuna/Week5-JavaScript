@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 13-03-26</title>
+    <link rel="stylesheet" href="./test.css">
+</head>
+<body>
+    <div class="container">
+    <h1><em>Interactive Task Manager</em></h1>
+    <!-- Task Input -->
+    <div class="input">
+    <input type="text" id="taskInput" placeholder="Enter task...">
+    <button id="addBtn">Add Task</button>
+    </div>
+    <ul id="taskList"></ul>
+    <div class="filter">
+        <h3><em>Filter By Category</em></h3>
+            <div class="filterButtons">
+                <button onclick="filterCategory('All')">All</button>
+                <button onclick="filterCategory('Completed')">Food</button>
+                <button onclick="filterCategory('Pending')">Travel</button>
+            </div>
+        </div>
+    </div>
+    <script src="./test.js"></script>
+</body>
+</html>
