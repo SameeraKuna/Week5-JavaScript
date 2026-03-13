@@ -2,13 +2,43 @@ let addBtn = document.getElementById("addBtn"); //addBtn has button element
 let taskInput = document.getElementById("taskInput"); //taskInput has input element
 let taskList = document.getElementById("taskList"); // taskList empty ul element
 
+//To implement local storage
+function saveTasks() {
+    let tasks = [];
+    document.querySelectorAll("#taskList li").forEach(li => {
+        let text = li.querySelector("span").textContent;
+        let completed = li.classList.contains("completed");
+        tasks.push({ text, completed });
+    });
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function loadTasks() {
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    tasks.forEach(task => {
+        let li = document.createElement("li");
+        li.innerHTML = `
+            <div class="task">
+                <input type="checkbox" class="check" ${task.completed ? "checked" : ""}>
+                <span>${task.text}</span>
+            </div>
+            <div class="actions">
+                <button class="edit">Edit</button>
+                <button class="delete">Delete</button>
+            </div>
+        `;
+        if(task.completed) li.classList.add("completed");
+        taskList.appendChild(li);
+    });
+}
+
 // To add a task
 addBtn.addEventListener("click",addTask);
 function addTask(){
     let text = taskInput.value.trim(); //trims the text starting and ending spaces
     if(text==="") return; //if entered nothing in input do nothing
-    let li = document.createElement("li"); //to store each task added to a list item
     
+    let li = document.createElement("li"); //to store each task added to a list item
     li.innerHTML = `
         <div class="task">
             <input type="checkbox" class="check">
@@ -21,6 +51,7 @@ function addTask(){
     `;//for each list item it has a checkbox, text added, edit button and delete button
     taskList.prepend(li); //to add current list item to the ul at the start
     taskInput.value=""; //to set the task input value to empty
+    saveTasks(); // update localStorage after adding
 }
 
 // Model for edit task
@@ -36,7 +67,9 @@ taskList.addEventListener("click",dynamicTaskList);
 function dynamicTaskList(e){
     let li = e.target.closest("li");
     if(e.target.classList.contains("delete"))
-        {li.remove();} 
+        {li.remove();
+        saveTasks(); // update storage
+        }
     else if(e.target.classList.contains("edit"))
         {
         currentSpan = li.querySelector("span");//When we click Edit, the code stores the span of that task in currentSpan.CurrentSpan refers to task text being edited.
@@ -48,7 +81,9 @@ function dynamicTaskList(e){
     saveEdit.addEventListener("click", function() {
     let newText = editInput.value.trim();
     if(newText !== "")
-        {currentSpan.textContent = newText;}
+        {   currentSpan.textContent = newText;
+            saveTasks(); //update storage
+        }
     editModal.style.display = "none"; // to hide modal
 });
 
@@ -69,10 +104,27 @@ function toChecklist(e){
     if(e.target.classList.contains("check")){
         let li = e.target.closest("li");
         li.classList.toggle("completed");
+        saveTasks(); //update storage
     } //to mark a task completed
 }
 taskList.addEventListener("change", toChecklist);
 
+//initialising loadTasks
+loadTasks(); //load tasks from localStorage on page load
+
+//to apply filters
+function filterCategory(category) {
+    let tasks = document.querySelectorAll("#taskList li");
+    tasks.forEach(li => {
+        if(category === "All") {
+            li.style.display = "flex"; // show everything
+        } else if(category === "Completed") {
+            li.style.display = li.classList.contains("completed") ? "flex" : "none";
+        } else if(category === "Pending") {
+            li.style.display = li.classList.contains("completed") ? "none" : "flex";
+        }
+    });
+}
 
 
 
