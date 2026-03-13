@@ -9,12 +9,25 @@
 <body>
     <div class="container">
     <h1><em>Interactive Task Manager</em></h1>
+
     <!-- Task Input -->
     <div class="input">
     <input type="text" id="taskInput" placeholder="Enter task...">
     <button id="addBtn">Add Task</button>
     </div>
     <ul id="taskList"></ul>
+
+    <!-- Edit Task Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal" class="close">&times;</span>
+            <h2>Edit Task</h2>
+            <input type="text" id="editInput" />
+            <button id="saveEdit">Save</button>
+        </div>
+    </div>
+
+    <!-- Filters -->
     <div class="filter">
         <h3><em>Filter By Category</em></h3>
             <div class="filterButtons">
